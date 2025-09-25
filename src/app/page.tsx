@@ -74,6 +74,7 @@ export default function Home() {
             <WelcomeScreen onSuggestionClick={handleSuggestionClick} />
           ) : (
             <ChatInterface
+              chat={selectedChat}
               messages={messages}
               input={input}
               handleInputChange={handleInputChange}

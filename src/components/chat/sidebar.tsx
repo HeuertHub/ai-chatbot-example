@@ -95,14 +95,15 @@ export function Sidebar({ chats, selectedChatId, onNewChat, onSelectChat }: Side
 
       {/* Footer */}
       <div className="space-y-1 border border-t p-4">
-        <Button variant="ghost" className="text-muted-foreground w-full justify-start gap-2">
+        <p className="text-sm text-muted-foreground text-center">2025 - Heuert</p>
+        {/* <Button variant="ghost" className="text-muted-foreground w-full justify-start gap-2">
           <Settings className="h-4 w-4" />
           Settings
         </Button>
         <Button variant="ghost" className="text-muted-foreground w-full justify-start gap-2">
           <HelpCircle className="h-4 w-4" />
           Help & Support
-        </Button>
+        </Button> */}
       </div>
     </div>
   );

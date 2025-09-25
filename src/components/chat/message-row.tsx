@@ -1,9 +1,25 @@
+"use client"
+
+import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Copy, Share, ThumbsUp, ThumbsDown, Send, Volume2, Mic } from "lucide-react";
+import { Copy, Check, ThumbsUp, ThumbsDown, Send, Volume2, Mic } from "lucide-react";
 import { type Message } from "@/lib/types";
+import { sleep } from "@/lib/sleep";
 
 export default function MessageRow({message, onPlay}: {message?: Message, onPlay: (content:string)=> void}) {
+  const [copied, setCopied] = useState(false);
+  const toClipboard = async() => {
+    try {
+      await navigator.clipboard.writeText(message?.content || '');
+      setCopied(true);
+      await sleep(2000);
+      setCopied(false);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   if (!message) {
     return (
       <div className="flex gap-4">
@@ -31,7 +47,7 @@ export default function MessageRow({message, onPlay}: {message?: Message, onPlay
     message.role === "user" ? (
       <>
         <div className="flex-1">
-          <div className="bg-muted rounded-lg border p-4 w-3/4 place-self-end">
+          <div className="bg-muted rounded-3xl border p-4 w-3/4 place-self-end">
             <p>{message.content}</p>
           </div>
         </div>
@@ -46,11 +62,11 @@ export default function MessageRow({message, onPlay}: {message?: Message, onPlay
           <AvatarFallback className="bg-blue-500">AI</AvatarFallback>
         </Avatar>
         <div className="flex-1">
-          <div className="bg-muted rounded-lg border p-4 w-3/4">
+          <div className="bg-muted rounded-3xl border p-4 w-3/4">
             <p className="mb-4">{message.content}</p>
             <div className="flex justify-end gap-2">
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <Copy className="h-4 w-4" />
+              <Button onClick={toClipboard} variant="ghost" size="sm" className="h-8 w-8 p-0">
+                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               </Button>
               <Button onClick={() => {onPlay(message.content);}} variant="ghost" size="sm" className="h-8 w-8 p-0">
                 <Volume2 className="h-4 w-4" />
