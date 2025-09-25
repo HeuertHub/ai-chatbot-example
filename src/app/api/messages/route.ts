@@ -3,35 +3,35 @@ import { NextRequest, NextResponse } from "next/server";
 const messages = [
     {
         id: '1321',
-        chat_id: '1267352713',
+        chat_id: '111',
         role: 'user',
         content: 'Hi this is my first message',
         timestamp: new Date()
     },
     {
         id: '213213',
-        chat_id: '1267352713',
+        chat_id: '111',
         role: 'partner',
         content: 'Then this is my reply!',
         timestamp: new Date()
     },
     {
         id: '21322',
-        chat_id: '1262352713',
+        chat_id: '222',
         role: 'user',
         content: 'Hi this is my first message on the other chat',
         timestamp: new Date()
     },
     {
         id: '22',
-        chat_id: '1262352713',
+        chat_id: '222',
         role: 'partner',
         content: 'Then this is my reply on this very chat!',
         timestamp: new Date()
     },
     {
         id: '223',
-        chat_id: '1262352713',
+        chat_id: '222',
         role: 'user',
         content: 'Ah, cool!',
         timestamp: new Date()

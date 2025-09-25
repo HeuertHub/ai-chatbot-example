@@ -5,9 +5,11 @@ import type React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Copy, Share, ThumbsUp, ThumbsDown, Send, Paperclip, Mic } from "lucide-react";
+import { Copy, Share, ThumbsUp, ThumbsDown, Send, Volume2, Mic } from "lucide-react";
 import { type Message } from "@/lib/types";
+import { useState, useEffect } from "react";
+import MessageRow from "./message-row";
+import { speak, stop, getVoicesByLang, TTSVoice } from "@/lib/tts";
 
 interface ChatInterfaceProps {
   messages: Message[];
@@ -15,6 +17,7 @@ interface ChatInterfaceProps {
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   isLoading: boolean;
+  lang: string;
 }
 
 export function ChatInterface({
@@ -22,8 +25,31 @@ export function ChatInterface({
   input,
   handleInputChange,
   handleSubmit,
-  isLoading
+  isLoading,
+  lang
 }: ChatInterfaceProps) {
+  const [speaking, setSpeaking] = useState(false);
+  const [voices, setVoices] = useState<TTSVoice[]>([]);
+  const [selectedVoice, setSelectedVoice] = useState<string | null>(null);
+
+  useEffect(() => {
+    getVoicesByLang(lang).then((list) => {
+      setVoices(list);
+      if (list.length) setSelectedVoice(list[0].voiceURI);
+    });
+  }, [lang]);
+  
+  const handleSpeak = (content:string) => {
+    if(speaking) {
+      stop();
+      setSpeaking(false);
+    } else if(selectedVoice) {
+      speak(content, selectedVoice);
+      setSpeaking(true)
+    }
+  }
+
+
   return (
     <div className="flex flex-1 flex-col">
       {/* Chat Messages */}
@@ -31,67 +57,11 @@ export function ChatInterface({
         <div className="mx-auto max-w-3xl space-y-6">
           {messages.map((message) => (
             <div key={message.id} className="flex gap-4">
-              {message.role === "user" ? (
-                <>
-                  <div className="flex-1">
-                    <div className="bg-muted rounded-lg border p-4 w-3/4 place-self-end">
-                      <p>{message.content}</p>
-                    </div>
-                  </div>
-                  <Avatar>
-                    <AvatarImage src="/placeholder.svg?height=32&width=32" />
-                    <AvatarFallback>ME</AvatarFallback>
-                  </Avatar>
-                </>
-              ) : (
-                <>
-                  <Avatar>
-                    <AvatarFallback className="bg-blue-500">AI</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <div className="bg-muted rounded-lg border p-4 w-3/4">
-                      <p className="mb-4">{message.content}</p>
-                      <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <Share className="h-4 w-4" />
-                        </Button>
-                        <div className="ml-auto flex items-center gap-1">
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <ThumbsDown className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <ThumbsUp className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
+              <MessageRow message={message} onPlay={handleSpeak}/>
             </div>
           ))}
           {isLoading && (
-            <div className="flex gap-4">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-blue-500">AI</AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <div className="bg-muted rounded-lg border p-4">
-                  <div className="flex items-center gap-2">
-                    <div className="bg-muted h-2 w-2 animate-bounce rounded-full"></div>
-                    <div
-                      className="bg-muted h-2 w-2 animate-bounce rounded-full"
-                      style={{ animationDelay: "0.1s" }}></div>
-                    <div
-                      className="bg-muted h-2 w-2 animate-bounce rounded-full"
-                      style={{ animationDelay: "0.2s" }}></div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <MessageRow onPlay={handleSpeak}/>
           )}
         </div>
       </ScrollArea>

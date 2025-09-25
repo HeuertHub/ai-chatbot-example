@@ -15,17 +15,12 @@ import {
   HelpCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface Chat {
-  id: string;
-  title: string;
-  preview: string;
-  timestamp: Date;
-}
+import { UUID } from "crypto";
+import { type Chat } from "@/lib/types";
 
 interface SidebarProps {
   chats: Chat[];
-  selectedChatId: string | null;
+  selectedChatId: UUID | null;
   onNewChat: () => void;
   onSelectChat: (chatId: string) => void;
 }
@@ -78,8 +73,8 @@ export function Sidebar({ chats, selectedChatId, onNewChat, onSelectChat }: Side
                     variant="ghost"
                     onClick={() => onSelectChat(chat.id)}
                     className={cn(
-                      "h-auto w-full justify-start p-3 text-left hover:bg-gray-100",
-                      selectedChatId === chat.id && "bg-gray-100"
+                      "h-auto w-full justify-start p-3 text-left hover:bg-gray-500 hover:opacity-80",
+                      selectedChatId === chat.id && "border-2"
                     )}>
                     <div className="flex w-full items-start gap-2">
                       <MessageCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />

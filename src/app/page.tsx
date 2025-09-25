@@ -4,12 +4,12 @@ import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/chat/sidebar";
 import { WelcomeScreen } from "@/components/chat/welcome-screen";
 import { ChatInterface } from "@/components/chat/chat-interface";
-import { type Message } from "@/lib/types";
+import { type Message, type Chat } from "@/lib/types";
 import { Loading } from "@/components/misc/loading-screen";
 
 export default function Home() {
-  const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
-  const [chats, setChats] = useState([]);
+  const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
+  const [chats, setChats] = useState<Chat[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingChat, setIsLoadingChat] = useState(false);
   const [input, setInput] = useState('');
@@ -19,14 +19,19 @@ export default function Home() {
   const handleSubmit = () => {alert(input)};
 
   const handleNewChat = () => {
-    setSelectedChatId(null);
+    setSelectedChat(null);
     // Reset chat messages would happen here in a real app
   };
 
   const handleSelectChat = async (chatId: string) => {
-    setSelectedChatId(chatId);
+    let currentChat = chats.find(c => {return c.id === chatId}) || null;
+
+    setSelectedChat(currentChat);
+    if(!currentChat) {
+      return;
+    }
     setIsLoading(true);
-    const req = await fetch(`/api/messages?id=${chatId}`);
+    const req = await fetch(`/api/messages?id=${currentChat.id}`);
     const res = await req.json();
 
     setMessages(res);
@@ -35,8 +40,12 @@ export default function Home() {
 
   const handleSuggestionClick = (suggestion: string) => {
     // In a real app, this would start a new chat with the suggestion
-    setSelectedChatId("new");
+    setSelectedChat(null);
   };
+
+  useEffect(() => {
+    
+  },[selectedChat]);
 
   useEffect(() => {
     async function getChats() {
@@ -53,7 +62,7 @@ export default function Home() {
     <div className="flex h-screen">
       <Sidebar
         chats={chats}
-        selectedChatId={selectedChatId}
+        selectedChatId={selectedChat?.id || null}
         onNewChat={handleNewChat}
         onSelectChat={handleSelectChat}
       />
@@ -61,7 +70,7 @@ export default function Home() {
         {isLoading ? 
           <Loading/>
           :
-          !selectedChatId ? (
+          !selectedChat?.id ? (
             <WelcomeScreen onSuggestionClick={handleSuggestionClick} />
           ) : (
             <ChatInterface
@@ -70,6 +79,7 @@ export default function Home() {
               handleInputChange={handleInputChange}
               handleSubmit={handleSubmit}
               isLoading={isLoadingChat}
+              lang={selectedChat.language}
             />
           )
         }
