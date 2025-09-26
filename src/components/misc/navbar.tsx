@@ -10,7 +10,18 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { BookA, Dumbbell, Briefcase, Mail } from "lucide-react";
+import { DictionaryTable } from '../dictionary/DictionaryTable';
 
 export default function NavBar() {
   const { theme, systemTheme, setTheme } = useTheme();
@@ -33,13 +44,33 @@ export default function NavBar() {
         
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button
-              size="icon"
-              variant="ghost"
-              className="transition-transform hover:scale-110"
-            >
-              <BookA className="h-5 w-5" />
-            </Button>
+            <Drawer>
+              <DrawerTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="transition-transform hover:scale-110"
+                >
+                  <BookA className="h-5 w-5" />
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent>
+                <div className="mx-auto w-full max-w-sm">
+                  <DrawerHeader>
+                    <DrawerTitle>
+                      Saved Words & Expressions
+                    </DrawerTitle>
+                    <DrawerDescription>
+                      Search through the words and expressions you saved
+                    </DrawerDescription>
+                  </DrawerHeader>
+                  <DictionaryTable />
+                  <DrawerFooter>
+                    <p className="text-sm text-muted-foreground text-center">Click anywhere outside to close</p>
+                  </DrawerFooter>
+                </div>
+              </DrawerContent>
+            </Drawer>
           </TooltipTrigger>
           <TooltipContent side="right">Saved Words & Expressions</TooltipContent>
         </Tooltip>
