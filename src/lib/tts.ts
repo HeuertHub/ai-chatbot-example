@@ -78,7 +78,10 @@ export async function speak(text: string, voiceURI: string, rate = 1): Promise<v
   if (!isClient() || !text) return;
 
   const synth = window.speechSynthesis;
-  synth.cancel(); // always stop before speaking new text
+  if(synth.speaking) {
+    synth.cancel();
+    return;
+  }
 
   const voices = await loadVoices();
   const voice = voices.find((v) => v.voiceURI === voiceURI);

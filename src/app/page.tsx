@@ -16,14 +16,53 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
 
   const handleInputChange = (e:React.ChangeEvent<HTMLInputElement>) => {setInput(e.target.value)};
-  const handleSubmit = () => {alert(input)};
-
-  const handleNewChat = () => {
-    setSelectedChat(null);
-    // Reset chat messages would happen here in a real app
+  const handleMessageSubmit = async () => {
+    const req = await fetch('/api/new-message', {
+      method: "POST",
+      body: JSON.stringify({input, language: selectedChat?.language, history: messages.slice(-10)}),
+      headers: {
+        "Content-Type": "application/json"
+      },
+    });
   };
 
+  const refresh = () => {
+    setInput('');
+  }
+
+  const handleNewChat = async () => {
+    setSelectedChat(null);
+    refresh();
+  };
+
+  const getChats = async() => {
+    const req = await fetch('/api/chats');
+    const res = await req.json();
+
+    setChats(res);
+  }
+
+  const handleChatSubmitted = async(input:string, language:string) => {
+    const req = await fetch('/api/new-chat', {
+      method: "POST",
+      body: JSON.stringify({input, language}),
+      headers: {
+        "Content-Type": "application/json"
+      },
+    });
+
+    alert(req.status)
+    const res = await req.json();
+    if(!res.ok) {
+      alert(res.message);
+    }
+
+    await getChats();
+    await handleSelectChat(res.data.chat.id);
+  }
+
   const handleSelectChat = async (chatId: string) => {
+    refresh();
     let currentChat = chats.find(c => {return c.id === chatId}) || null;
 
     setSelectedChat(currentChat);
@@ -34,27 +73,15 @@ export default function Home() {
     const req = await fetch(`/api/messages?id=${currentChat.id}`);
     const res = await req.json();
 
-    setMessages(res);
+    setMessages(res.data);
     setIsLoading(false);
   };
 
-  const handleSuggestionClick = (suggestion: string) => {
-    // In a real app, this would start a new chat with the suggestion
-    setSelectedChat(null);
-  };
-
   useEffect(() => {
-    
+    console.log(selectedChat)
   },[selectedChat]);
 
   useEffect(() => {
-    async function getChats() {
-      const req = await fetch('/api/chats');
-      const res = await req.json();
-
-      setChats(res);
-    }
-
     getChats();
   }, []);
 
@@ -71,14 +98,14 @@ export default function Home() {
           <Loading/>
           :
           !selectedChat?.id ? (
-            <WelcomeScreen onSuggestionClick={handleSuggestionClick} />
+            <WelcomeScreen submitAction={handleChatSubmitted} />
           ) : (
             <ChatInterface
               chat={selectedChat}
               messages={messages}
               input={input}
               handleInputChange={handleInputChange}
-              handleSubmit={handleSubmit}
+              handleSubmit={handleMessageSubmit}
               isLoading={isLoadingChat}
               lang={selectedChat.language}
             />

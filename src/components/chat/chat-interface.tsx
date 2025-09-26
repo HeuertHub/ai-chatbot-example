@@ -16,13 +16,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { languages } from "@/lib/types";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../ui/select";
 
 interface ChatInterfaceProps {
   chat: Chat;
   messages: Message[];
   input: string;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  handleSubmit: () => void;
   isLoading: boolean;
   lang: string;
 }
@@ -50,13 +51,9 @@ export function ChatInterface({
     });
   }, [lang]);
   
-  const handleSpeak = (content:string) => {
-    if(speaking) {
-      stop();
-      setSpeaking(false);
-    } else if(selectedVoice) {
+  const handleSpeak = async (content:string) => {
+    if(selectedVoice) {
       speak(content, selectedVoice);
-      setSpeaking(true)
     }
   }
 
@@ -76,7 +73,7 @@ export function ChatInterface({
     <div className="flex flex-1 flex-col">
       <div className="border-b p-6">
         <div className="h-6 mx-auto max-w-3xl flex flex-row items-center justify-between">
-          <div>
+          <div className="h-5 w-5">
             { selectedText && 
               <Tooltip>
                 <TooltipTrigger onClick={()=>alert(selectedText)}>
@@ -91,6 +88,18 @@ export function ChatInterface({
               </Tooltip>
             }
           </div>
+          <Select value={selectedVoice || undefined} onValueChange={setSelectedVoice}>
+            <SelectTrigger className="w-[280px]">
+              <SelectValue placeholder="Pick a voice"/>
+            </SelectTrigger>
+            <SelectContent>
+              {voices.map((voice) => {
+                return (
+                  <SelectItem key={voice.voiceURI} value={voice.voiceURI}>{voice.name}</SelectItem>
+                )
+              })}
+            </SelectContent>
+          </Select>
           <div>
             <p>{chat.title} • {chatDate} • {currentLanguage}</p>
           </div>
@@ -102,6 +111,7 @@ export function ChatInterface({
           {messages.map((message) => (
             <div key={message.id} className="flex gap-4">
               <MessageRow message={message} onPlay={handleSpeak} onTextSelect={handleTextSelect}/>
+              {speaking && <p>Speaking...</p>}
             </div>
           ))}
           {isLoading && (
@@ -126,7 +136,8 @@ export function ChatInterface({
                 <Mic className="h-4 w-4" />
               </Button>
               <Button
-                type="submit"
+                onClick={handleSubmit}
+                type="button"
                 size="sm"
                 disabled={!input.trim() || isLoading}
                 className="h-8 w-8 p-0">
@@ -139,22 +150,3 @@ export function ChatInterface({
     </div>
   );
 }
-
-const fabStyle: React.CSSProperties = {
-  position: 'fixed',
-  left: '20%',
-  transform: 'translateX(-50%)',
-  top: '5%',
-  width: 56,
-  height: 56,
-  borderRadius: 9999,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  background: 'var(--fab-bg, rgba(0,0,0,0.75))',
-  color: 'white',
-  border: 'none',
-  boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
-  cursor: 'pointer',
-  zIndex: 50,
-};

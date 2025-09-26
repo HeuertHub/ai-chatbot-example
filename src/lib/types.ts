@@ -96,7 +96,7 @@ export const entryStatusIcons = [
         description: "Long-term stable knowledge",
         icon: ChevronsUpDown
     },
-]
+];
 /*
 New – not yet studied
 Introduced – first exposure
@@ -106,6 +106,15 @@ Proficient – usually recalled correctly
 Mastered – consistently recalled
 Retained – long-term stable knowledge
 */
+
+// ----------------------------------------- API Response Types
+export type ChatResponse = {
+    response: string,
+    extracted_entries: string[],
+    title?:string
+}
+
+//------------------------------------------
 
 export type Language = {
     value: string,
@@ -149,4 +158,19 @@ export type Example = {
     entry_id: UUID,
     value: string,
     translation: string
+}
+
+export type PracticeSession = {
+    id: UUID,
+    language: string,
+    score: number,
+    timestamp: Timestamp
+}
+
+export type SessionExercise = {
+    id: UUID,
+    session_id: UUID,
+    entry_id: UUID,
+    correct: boolean,
+    completed: boolean
 }
