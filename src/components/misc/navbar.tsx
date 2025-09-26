@@ -2,7 +2,7 @@
 
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, BookA, Dumbbell, Briefcase, Mail } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -20,12 +20,13 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { BookA, Dumbbell, Briefcase, Mail } from "lucide-react";
 import { DictionaryTable } from '../dictionary/DictionaryTable';
+import { type Entry } from "@/lib/types";
 
 export default function NavBar() {
   const { theme, systemTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [entries, setEntries] = useState<Entry[]>([]);
 
   useEffect(() => setMounted(true), []);
 
@@ -34,8 +35,15 @@ export default function NavBar() {
 
   const toggle = () => setTheme(isDark ? 'light' : 'dark');
 
+  const loadEntries = async() => {
+    const req = await fetch('/api/dictionary');
+    const res = await req.json();
+
+    setEntries(res);
+  }
+
   if (!mounted) {
-    return <button aria-label="Toggle theme" style={fabStyle} />;
+    return <></>;
   }
 
   return (
@@ -47,6 +55,7 @@ export default function NavBar() {
             <Drawer>
               <DrawerTrigger asChild>
                 <Button
+                  onClick={loadEntries}
                   size="icon"
                   variant="ghost"
                   className="transition-transform hover:scale-110"
@@ -55,7 +64,7 @@ export default function NavBar() {
                 </Button>
               </DrawerTrigger>
               <DrawerContent>
-                <div className="mx-auto w-full max-w-sm">
+                <div className="min-h-3/4 mx-auto w-full max-w-7xl">
                   <DrawerHeader>
                     <DrawerTitle>
                       Saved Words & Expressions
@@ -64,7 +73,7 @@ export default function NavBar() {
                       Search through the words and expressions you saved
                     </DrawerDescription>
                   </DrawerHeader>
-                  <DictionaryTable />
+                  <DictionaryTable entries={entries}/>
                   <DrawerFooter>
                     <p className="text-sm text-muted-foreground text-center">Click anywhere outside to close</p>
                   </DrawerFooter>
@@ -107,28 +116,3 @@ export default function NavBar() {
   );
 }
 
-const fabStyle: React.CSSProperties = {
-  position: 'fixed',
-  left: '95%',
-  transform: 'translateX(-50%)',
-  bottom: '3%',
-  width: 56,
-  height: 56,
-  borderRadius: 9999,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  background: 'var(--fab-bg, rgba(0,0,0,0.75))',
-  color: 'white',
-  border: 'none',
-  boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
-  cursor: 'pointer',
-  zIndex: 50,
-};
-/* <button
-      aria-label="Toggle theme"
-      onClick={toggle}
-      style={fabStyle}
-    >
-      {isDark ? <Sun size={24} /> : <Moon size={24} />}
-    </button> */

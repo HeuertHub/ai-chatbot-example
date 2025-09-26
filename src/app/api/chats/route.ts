@@ -8,14 +8,14 @@ export async function GET() {
             title: 'Chat 1',
             preview: 'What did you do about it?',
             timestamp: new Date(),
-            language: 'en-US'
+            language: 'fi'
         },
         {
             id: '222',
             title: 'Crazy Convo',
             preview: 'No, I did not do it',
             timestamp: new Date(),
-            language: 'ru-RU'
+            language: 'ru'
         },
     ]);
 }

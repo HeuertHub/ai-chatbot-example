@@ -33,8 +33,8 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem>Edit</DropdownMenuItem>
-        <DropdownMenuItem>Make a copy</DropdownMenuItem>
+        <DropdownMenuItem>Reset Status</DropdownMenuItem>
+        <DropdownMenuItem>Copy to Clipboard</DropdownMenuItem>
         <DropdownMenuItem>Favorite</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive">

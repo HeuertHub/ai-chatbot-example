@@ -5,11 +5,17 @@ import type React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Copy, Share, ThumbsUp, ThumbsDown, Send, Volume2, Mic } from "lucide-react";
+import { Copy, Share, ThumbsUp, ThumbsDown, Send, X, Mic, BookMarked } from "lucide-react";
 import { type Message, type Chat } from "@/lib/types";
 import { useState, useEffect } from "react";
 import MessageRow from "./message-row";
 import { speak, stop, getVoicesByLang, TTSVoice } from "@/lib/tts";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { languages } from "@/lib/types";
 
 interface ChatInterfaceProps {
   chat: Chat;
@@ -33,7 +39,9 @@ export function ChatInterface({
   const [speaking, setSpeaking] = useState(false);
   const [voices, setVoices] = useState<TTSVoice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<string | null>(null);
+  const [selectedText, setSelectedText] = useState<string | null>(null);
   const chatDate = new Date(chat.timestamp).toDateString();
+  const currentLanguage = languages.find(x => x.value === chat.language)?.label;
 
   useEffect(() => {
     getVoicesByLang(lang).then((list) => {
@@ -52,12 +60,40 @@ export function ChatInterface({
     }
   }
 
+  const handleTextSelect = () => {
+    const selection = window.getSelection();
+    if(selection && selection.toString().length > 0 && selection.toString().trim().length > 0) {
+      setSelectedText(selection.toString().trim());
+    }
+  }
+
+  const clearTextSelect = () => {
+    setSelectedText(null);
+  }
+
 
   return (
     <div className="flex flex-1 flex-col">
       <div className="border-b p-6">
-        <div className="mx-auto max-w-3xl flex-row">
-          <p>{chatDate} • {chat.language}</p>
+        <div className="h-6 mx-auto max-w-3xl flex flex-row items-center justify-between">
+          <div>
+            { selectedText && 
+              <Tooltip>
+                <TooltipTrigger onClick={()=>alert(selectedText)}>
+                  <BookMarked className="h-5 w-5 transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110"/>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <div className="flex flex-col">
+                    <X className="h-3 w-3 self-end -top-3 -right-3" onClick={clearTextSelect}></X>
+                    Add "{selectedText}" to dictionary
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            }
+          </div>
+          <div>
+            <p>{chat.title} • {chatDate} • {currentLanguage}</p>
+          </div>
         </div>
       </div>
       {/* Chat Messages */}
@@ -65,11 +101,11 @@ export function ChatInterface({
         <div className="mx-auto max-w-3xl space-y-6">
           {messages.map((message) => (
             <div key={message.id} className="flex gap-4">
-              <MessageRow message={message} onPlay={handleSpeak}/>
+              <MessageRow message={message} onPlay={handleSpeak} onTextSelect={handleTextSelect}/>
             </div>
           ))}
           {isLoading && (
-            <MessageRow onPlay={handleSpeak}/>
+            <MessageRow onPlay={handleSpeak} onTextSelect={handleTextSelect}/>
           )}
         </div>
       </ScrollArea>
@@ -82,7 +118,7 @@ export function ChatInterface({
               <Input
                 value={input}
                 onChange={handleInputChange}
-                placeholder="Ask me anything..."
+                placeholder="Type your message..."
                 className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
                 disabled={isLoading}
               />
@@ -103,3 +139,22 @@ export function ChatInterface({
     </div>
   );
 }
+
+const fabStyle: React.CSSProperties = {
+  position: 'fixed',
+  left: '20%',
+  transform: 'translateX(-50%)',
+  top: '5%',
+  width: 56,
+  height: 56,
+  borderRadius: 9999,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  background: 'var(--fab-bg, rgba(0,0,0,0.75))',
+  color: 'white',
+  border: 'none',
+  boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
+  cursor: 'pointer',
+  zIndex: 50,
+};

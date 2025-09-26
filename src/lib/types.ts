@@ -1,7 +1,7 @@
 import { UUID } from "crypto";
 import { Timestamp } from "next/dist/server/lib/cache-handlers/types";
 
-import { ArrowDown, ArrowUp, ChevronsUpDown, EyeOff } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronsUpDown, Heart, CircleSlash2 } from "lucide-react";
 
 enum EntryStatus {
     NEW = "New",
@@ -15,28 +15,41 @@ enum EntryStatus {
 
 export const languages:Language[] = [
     {
-        code: "de",
-        name: "German"
+        value: "de",
+        label: "German"
     },
     {
-        code: "fi",
-        name: "Finnish"
+        value: "fi",
+        label: "Finnish"
     },
     {
-        code: "ru",
-        name: "Russian"
+        value: "ru",
+        label: "Russian"
     },
     {
-        code: "zh",
-        name: "Chinese"
+        value: "zh",
+        label: "Chinese"
     },
     {
-        code: "ar",
-        name: "Arabic"
+        value: "ar",
+        label: "Arabic"
     },
     {
-        code: "fr",
-        name: "French"
+        value: "fr",
+        label: "French"
+    },
+];
+
+export const favoriteOptions = [
+    {
+        value: "false",
+        label: "Unfaved",
+        icon: CircleSlash2
+    },
+    {
+        value: "true",
+        label: "Faved",
+        icon: Heart
     },
 ];
 
@@ -95,8 +108,8 @@ Retained – long-term stable knowledge
 */
 
 export type Language = {
-    code: string,
-    name: string
+    value: string,
+    label: string
 }
 
 export type Chat = {
@@ -121,7 +134,8 @@ export type Entry = {
     language: string,
     times_seen: number,
     status: EntryStatus,
-    senses: string
+    senses: string,
+    favorite: boolean
 }
 
 export type Sense = {

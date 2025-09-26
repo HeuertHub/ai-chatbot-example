@@ -1,8 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-
-import { Badge } from "@/components/ui/badge";
+import { Heart } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { languages, entryStatusIcons } from "@/lib/types";
 import { Entry } from "@/lib/types";
@@ -36,14 +35,26 @@ export const columns: ColumnDef<Entry>[] = [
   {
     accessorKey: "language",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Language" />,
-    cell: ({ row }) => <div className="w-[80px]">{row.getValue("language")}</div>,
+    cell: ({ row }) => {
+      const languageLabel = languages.find(x => x.value === row.getValue("language"))?.label || "No Language";
+      return (
+        <div className="w-[80px]">{languageLabel}</div>
+      );
+    },
     enableSorting: false,
     enableHiding: false
   },
   {
-    accessorKey: "entry",
+    accessorKey: "favorite",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="" />,
+    cell: ({ row }) => <div className="w-[5px]">{row.getValue("favorite") === "true" && <Heart className="h-4 w-4"/>}</div>,
+    enableSorting: false,
+    enableHiding: false
+  },
+  {
+    accessorKey: "value",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Entry" />,
-    cell: ({ row }) => <div className="w-[80px]">{row.getValue("entry")}</div>,
+    cell: ({ row }) => <div className="w-[80px]">{row.getValue("value")}</div>,
     enableSorting: false,
     enableHiding: false
   },

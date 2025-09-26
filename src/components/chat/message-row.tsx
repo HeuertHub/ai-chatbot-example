@@ -7,7 +7,14 @@ import { Copy, Check, ThumbsUp, ThumbsDown, Send, Volume2, Mic } from "lucide-re
 import { type Message } from "@/lib/types";
 import { sleep } from "@/lib/sleep";
 
-export default function MessageRow({message, onPlay}: {message?: Message, onPlay: (content:string)=> void}) {
+export default function MessageRow(
+  {message, onPlay, onTextSelect} : 
+  {
+    message?: Message, 
+    onPlay: (content:string)=> void, 
+    onTextSelect: ()=> void
+  }
+) {
   const [copied, setCopied] = useState(false);
   const toClipboard = async() => {
     try {
@@ -19,6 +26,18 @@ export default function MessageRow({message, onPlay}: {message?: Message, onPlay
       console.error(err);
     }
   }
+
+  // useEffect(() => {
+  //   document.addEventListener("selectionchange", onTextSelect);
+  //   // document.addEventListener("mouseup", onTextSelect);
+  //   // document.addEventListener("keyup", onTextSelect);
+
+  //   return () => {
+  //     document.removeEventListener("selectionchange", onTextSelect);
+  //     // document.removeEventListener("mouseup", onTextSelect);
+  //     // document.removeEventListener("keyup", onTextSelect);
+  //   }
+  // }, []);
 
   if (!message) {
     return (
@@ -48,7 +67,7 @@ export default function MessageRow({message, onPlay}: {message?: Message, onPlay
       <>
         <div className="flex-1">
           <div className="bg-muted rounded-3xl border p-4 w-3/4 place-self-end">
-            <p>{message.content}</p>
+            <p onMouseUp={onTextSelect}>{message.content}</p>
           </div>
         </div>
         <Avatar>
@@ -63,7 +82,7 @@ export default function MessageRow({message, onPlay}: {message?: Message, onPlay
         </Avatar>
         <div className="flex-1">
           <div className="bg-muted rounded-3xl border p-4 w-3/4">
-            <p className="mb-4">{message.content}</p>
+            <p onMouseUp={onTextSelect} className="mb-4">{message.content}</p>
             <div className="flex justify-end gap-2">
               <Button onClick={toClipboard} variant="ghost" size="sm" className="h-8 w-8 p-0">
                 {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
