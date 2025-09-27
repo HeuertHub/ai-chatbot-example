@@ -81,43 +81,57 @@ export const entryStatusIcons = [
         value: "NEW",
         label: "New",
         description: "Not yet studied",
-        icon: ArrowDown
+        icon: ArrowDown,
+        min: 0,
+        max: 4
     },
     {
         value: "INTRODUCED",
         label: "Introduced",
         description: "First exposure",
-        icon: ArrowUp
+        icon: ArrowUp,
+        min: 5,
+        max: 14
     },
     {
         value: "LEARNING",
         label: "Learning",
         description: "In active practice",
-        icon: ChevronsUpDown
+        icon: ChevronsUpDown,
+        min: 15,
+        max: 24
     },
     {
         value: "FAMILIAR",
         label: "Familiar",
         description: "Recognizable with effort",
-        icon: ChevronsUpDown
+        icon: ChevronsUpDown,
+        min: 25,
+        max: 34
     },
     {
         value: "PROFICIENT",
         label: "Proficient",
         description: "Usually recalled correctly",
-        icon: ChevronsUpDown
+        icon: ChevronsUpDown,
+        min: 35,
+        max: 49
     },
     {
         value: "MASTERED",
         label: "Mastered",
         description: "Consistently recalled",
-        icon: ChevronsUpDown
+        icon: ChevronsUpDown,
+        min: 50,
+        max: 69
     },
     {
         value: "RETAINED",
         label: "Retained",
         description: "Long-term stable knowledge",
-        icon: ChevronsUpDown
+        icon: ChevronsUpDown,
+        min: 70,
+        max: Infinity
     },
 ];
 /*
@@ -174,7 +188,7 @@ export type Entry = {
     value: string,
     language: string,
     times_seen: number,
-    status: EntryStatus,
+    status: string,
     senses: string,
     favorite: boolean
 }

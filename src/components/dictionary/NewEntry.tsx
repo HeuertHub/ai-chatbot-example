@@ -52,11 +52,11 @@ export function NewEntry({onRefresh}:{onRefresh:()=>void}) {
         <div className="grid gap-4 my-3">
           <div className="grid gap-3">
             <Label htmlFor="entry">Entry</Label>
-            <Input id="entry" name="entry" placeholder="..." value={input} onChange={(e) => setInput(e.target.value)}/>
+            <Input id="entry" name="entry" placeholder="..." value={input} onChange={(e) => setInput(e.target.value)} disabled={isLoading}/>
           </div>
           <div className="grid gap-3">
             <Label htmlFor="language">Language</Label>
-            <Select key="lang-select" name="language" value={language} onValueChange={setLanguage}>
+            <Select key="lang-select" name="language" value={language} onValueChange={setLanguage} disabled={isLoading}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Pick a language"/>
               </SelectTrigger>

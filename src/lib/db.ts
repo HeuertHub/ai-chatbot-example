@@ -1,4 +1,5 @@
 import { createClient } from "./supabase-server";
+import { entryStatusIcons } from "./types";
 
 export async function createNewChat({language, title, preview}:{language:string, title:string, preview:string}) {
     const supabase = await createClient();
@@ -105,4 +106,62 @@ export async function getDictionary() {
     if(error) throw error;
 
     return data;
+}
+
+export async function createEntry({value, language, senses}:{value:string, language:string, senses:string}) {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+        .from('entries')
+        .insert({
+            value,
+            language,
+            senses,
+            times_seen: 0,
+            status: parseTimesSeen(0),
+            favorite: false
+        }).select('*')
+        .single();
+
+        if(error) throw error;
+
+        return data;
+}
+
+export async function createSenses({entry_id, senses}:{entry_id:string, senses:string[]}) {
+    const supabase = await createClient();
+
+    const rows = [];
+    for(let sense of senses) {
+        rows.push({entry_id, value:sense});
+    }
+
+    const { data, error } = await supabase
+        .from('senses')
+        .insert(rows);
+    
+    if(error) throw error;
+
+    return data;
+}
+
+export async function createExamples({entry_id, examples}:{entry_id:string, examples:{value:string,translation:string}[]}) {
+    const supabase = await createClient();
+
+    const rows = [];
+    for(let example of examples) {
+        rows.push({entry_id, value: example.value, translation: example.translation});
+    }
+
+    const { data, error } = await supabase
+        .from('examples')
+        .insert(rows);
+    
+    if(error) throw error;
+
+    return data;
+}
+
+function parseTimesSeen(n:number) {
+    return entryStatusIcons.find(x => n >= x.min && n <= x.max)?.value || "Error";
 }

@@ -4,12 +4,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { openai, defaultModel } from "@/lib/openai";
 import { getEntryPrompt } from "@/lib/prompts";
 import { stripJSONFence } from "@/lib/stripJSONFence";
-import { type EntryResponse, type Message } from "@/lib/types";
-import { createNewChat, newUserMessage, newAssistantMessage, handleExtractedEntries, messageSent } from "@/lib/db";
+import { type EntryResponse, type Message, type Entry } from "@/lib/types";
+import { createEntry, createExamples, createSenses } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
     const body = await req.json();
-    let newResponse:Message;
+
+    let newEntry:Entry;
     try {
         const { language, entry } = body;
 
@@ -37,12 +38,20 @@ export async function POST(req: NextRequest) {
             throw "Entry not valid or return JSON is empty";
         }
 
-        // Handle Entry, senses and examples insert
+        // Handle Entry, senses and examples create
+        newEntry = await createEntry({value: entry, language, senses: json.senses.join(', ')});
+        if(json.senses.length > 0) {
+            await createSenses({entry_id: newEntry.id, senses: json.senses});
+        }
+        if(json.examples.length > 0) {
+            await createExamples({entry_id: newEntry.id, examples: json.examples});
+        }
     } catch(err) {
         return NextResponse.json({ ok: false, data: null, message: (err as Error).message });
     }    
 
     return NextResponse.json({
-        ok: true
+        ok: true,
+        data: newEntry
     });
 }

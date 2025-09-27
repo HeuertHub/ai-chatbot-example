@@ -38,8 +38,8 @@ export default function NavBar() {
   const loadEntries = async() => {
     const req = await fetch('/api/dictionary');
     const res = await req.json();
-
-    setEntries(res);
+    
+    setEntries(res.data);
   }
 
   if (!mounted) {
