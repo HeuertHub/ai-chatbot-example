@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase-server";
 import { getChatPrompt } from "@/lib/prompts";
 import { stripJSONFence } from "@/lib/stripJSONFence";
 import { type ChatResponse, type Chat } from "@/lib/types";
-import { createNewChat, newUserMessage, newPartnerMessage, handleExtractedEntries } from "@/lib/db";
+import { createNewChat, newUserMessage, newAssistantMessage, handleExtractedEntries, messageSent } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
     const body = await req.json();
@@ -46,8 +46,10 @@ export async function POST(req: NextRequest) {
             throw "Empty response";
         }
 
-        await newUserMessage({chat_id: newChat.id, content: input});
-        await newPartnerMessage({chat_id: newChat.id, content: json.response});
+        const firstMessage = await newUserMessage({chat_id: newChat.id, content: input});
+        
+        await messageSent({id: firstMessage.id});
+        await newAssistantMessage({chat_id: newChat.id, content: json.response});
     } catch(err) {
         return NextResponse.json({ ok: false, data: null, message: (err as Error).message });
     }    

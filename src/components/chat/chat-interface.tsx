@@ -24,6 +24,7 @@ interface ChatInterfaceProps {
   input: string;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubmit: () => void;
+  handleReattempt: () => void;
   isLoading: boolean;
   lang: string;
 }
@@ -34,6 +35,7 @@ export function ChatInterface({
   input,
   handleInputChange,
   handleSubmit,
+  handleReattempt,
   isLoading,
   lang
 }: ChatInterfaceProps) {
@@ -68,7 +70,6 @@ export function ChatInterface({
     setSelectedText(null);
   }
 
-
   return (
     <div className="flex flex-1 flex-col">
       <div className="border-b p-6">
@@ -76,7 +77,7 @@ export function ChatInterface({
           <div className="h-5 w-5">
             { selectedText && 
               <Tooltip>
-                <TooltipTrigger onClick={()=>alert(selectedText)}>
+                <TooltipTrigger>
                   <BookMarked className="h-5 w-5 transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110"/>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -110,12 +111,12 @@ export function ChatInterface({
         <div className="mx-auto max-w-3xl space-y-6">
           {messages.map((message) => (
             <div key={message.id} className="flex gap-4">
-              <MessageRow message={message} onPlay={handleSpeak} onTextSelect={handleTextSelect}/>
+              <MessageRow message={message} onPlay={handleSpeak} onTextSelect={handleTextSelect} onReattempt={handleReattempt}/>
               {speaking && <p>Speaking...</p>}
             </div>
           ))}
           {isLoading && (
-            <MessageRow onPlay={handleSpeak} onTextSelect={handleTextSelect}/>
+            <MessageRow onPlay={handleSpeak} onTextSelect={handleTextSelect} onReattempt={handleReattempt}/>
           )}
         </div>
       </ScrollArea>
@@ -123,11 +124,17 @@ export function ChatInterface({
       {/* Input Area */}
       <div className="border-t p-6">
         <div className="mx-auto max-w-3xl">
-          <form onSubmit={handleSubmit} className="relative">
+          <div className="relative">
             <div className="bg-secondary flex items-center gap-2 rounded-lg border p-2">
               <Input
                 value={input}
                 onChange={handleInputChange}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    !!input && handleSubmit();
+                  }
+                }}
                 placeholder="Type your message..."
                 className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
                 disabled={isLoading}
@@ -144,7 +151,7 @@ export function ChatInterface({
                 <Send className="h-4 w-4" />
               </Button>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>

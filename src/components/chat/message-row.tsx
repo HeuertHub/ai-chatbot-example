@@ -3,16 +3,22 @@
 import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Copy, Check, ThumbsUp, ThumbsDown, Send, Volume2, Mic } from "lucide-react";
+import { Copy, Check, RefreshCcw, ThumbsDown, Send, Volume2, Mic } from "lucide-react";
 import { type Message } from "@/lib/types";
 import { sleep } from "@/lib/sleep";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function MessageRow(
-  {message, onPlay, onTextSelect} : 
+  {message, onPlay, onTextSelect, onReattempt} : 
   {
     message?: Message, 
     onPlay: (content:string)=> void, 
     onTextSelect: ()=> void
+    onReattempt: ()=> void
   }
 ) {
   const [copied, setCopied] = useState(false);
@@ -26,18 +32,6 @@ export default function MessageRow(
       console.error(err);
     }
   }
-
-  // useEffect(() => {
-  //   document.addEventListener("selectionchange", onTextSelect);
-  //   // document.addEventListener("mouseup", onTextSelect);
-  //   // document.addEventListener("keyup", onTextSelect);
-
-  //   return () => {
-  //     document.removeEventListener("selectionchange", onTextSelect);
-  //     // document.removeEventListener("mouseup", onTextSelect);
-  //     // document.removeEventListener("keyup", onTextSelect);
-  //   }
-  // }, []);
 
   if (!message) {
     return (
@@ -68,6 +62,23 @@ export default function MessageRow(
         <div className="flex-1">
           <div className="bg-muted rounded-3xl border p-4 w-3/4 place-self-end">
             <p onMouseUp={onTextSelect}>{message.content}</p>
+            {!message.sent && 
+              <div className="flex justify-end gap-2">
+                <Tooltip>
+                <TooltipTrigger>
+                  <Button onClick={onReattempt} variant="destructive" size="sm" className="h-8 w-8 p-0 cursor-pointer">
+                    <RefreshCcw className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <div className="flex flex-col">
+                    Message not sent, click to reattempt
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+                
+              </div>
+            }
           </div>
         </div>
         <Avatar>
@@ -84,20 +95,12 @@ export default function MessageRow(
           <div className="bg-muted rounded-3xl border p-4 w-3/4">
             <p onMouseUp={onTextSelect} className="mb-4">{message.content}</p>
             <div className="flex justify-end gap-2">
-              <Button onClick={toClipboard} variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <Button onClick={toClipboard} variant="ghost" size="sm" className="h-8 w-8 p-0 cursor-pointer">
                 {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               </Button>
-              <Button onClick={() => {onPlay(message.content);}} variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <Button onClick={() => {onPlay(message.content);}} variant="ghost" size="sm" className="h-8 w-8 p-0 cursor-pointer">
                 <Volume2 className="h-4 w-4" />
               </Button>
-              {/* <div className="ml-auto flex items-center gap-1">
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <ThumbsDown className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <ThumbsUp className="h-4 w-4" />
-                        </Button>
-                    </div> */}
             </div>
           </div>
         </div>

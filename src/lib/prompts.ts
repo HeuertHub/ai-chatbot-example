@@ -15,3 +15,29 @@ export function getChatPrompt(language:string, isNew:boolean) {
         `7) Return strict JSON with keys: response (string), extracted_entries (string[])${isNew && ', title (string)'}`
     ].join(" ");
 }
+
+export function getEntryPrompt(language:string) {
+    const lang = languages.find(x=>x.value===language)?.label;
+    return [
+        `You are a multilingual dictionary assistant.`,
+        `The user will provide a word, expression, or sentence in ${lang}.`,
+        `You must respond in **strict JSON** with the following structure only:`,
+        `{"isValid": boolean`,
+        `"senses": [ `,
+        `    // Up to 10 possible senses (translations or meanings in English) of the input word/expression`,
+        `],`,
+        `"examples": [`,
+        `    {`,
+        `    "value": "Example sentence in the original language",`,
+        `    "translation": "Its English translation"`,
+        `    }`,
+        `    // Provide 3-7 such example pairs`,
+        `]}`,
+        `Guidelines:`,
+        `- "isValid" is for you to identify if the input is a valid input and not just incomplete/random string, if not valid, senses and examples come as an empty array`,
+        `- "senses" must contain as many distinct translations/meanings as possible, capped at 10.`,
+        `- "examples" must demonstrate real-world usage of the word/expression in natural sentences, with accurate English translations.`,
+        `- Do not add explanations, comments, or extra fields outside the JSON object.`,
+        `- Always ensure valid JSON formatting with double quotes around keys and string values.`
+    ].join(" ");
+}

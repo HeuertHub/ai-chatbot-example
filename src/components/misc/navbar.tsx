@@ -73,7 +73,7 @@ export default function NavBar() {
                       Search through the words and expressions you saved
                     </DrawerDescription>
                   </DrawerHeader>
-                  <DictionaryTable entries={entries}/>
+                  <DictionaryTable entries={entries} onRefresh={loadEntries}/>
                   <DrawerFooter>
                     <p className="text-sm text-muted-foreground text-center">Click anywhere outside to close</p>
                   </DrawerFooter>

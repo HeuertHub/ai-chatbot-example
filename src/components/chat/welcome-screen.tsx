@@ -32,7 +32,7 @@ export function WelcomeScreen({ submitAction }:{ submitAction: (input:string, la
           <Label>Pick a language</Label>
           <Select key="lang-select" value={language} onValueChange={setLanguage}>
             <SelectTrigger className="w-[280px]">
-              <SelectValue placeholder="Pick a voice"/>
+              <SelectValue placeholder="Pick a language"/>
             </SelectTrigger>
             <SelectContent>
               {languages.map((lang) => {
@@ -47,11 +47,17 @@ export function WelcomeScreen({ submitAction }:{ submitAction: (input:string, la
       {/* Input Area */}
       <div className="border-t p-6">
         <div className="mx-auto max-w-3xl">
-          <form className="relative">
+          <div className="relative">
             <div className="bg-secondary flex items-center gap-2 rounded-lg border p-2">
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    !!input && handleSubmit();
+                  }
+                }}
                 placeholder="Type your message..."
                 className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
                 disabled={isLoading}
@@ -68,7 +74,7 @@ export function WelcomeScreen({ submitAction }:{ submitAction: (input:string, la
                 <Send className="h-4 w-4" />
               </Button>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>

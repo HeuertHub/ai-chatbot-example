@@ -16,15 +16,6 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
 
   const handleInputChange = (e:React.ChangeEvent<HTMLInputElement>) => {setInput(e.target.value)};
-  const handleMessageSubmit = async () => {
-    const req = await fetch('/api/new-message', {
-      method: "POST",
-      body: JSON.stringify({input, language: selectedChat?.language, history: messages.slice(-10)}),
-      headers: {
-        "Content-Type": "application/json"
-      },
-    });
-  };
 
   const refresh = () => {
     setInput('');
@@ -51,26 +42,76 @@ export default function Home() {
       },
     });
 
-    alert(req.status)
     const res = await req.json();
     if(!res.ok) {
       alert(res.message);
     }
 
-    await getChats();
-    await handleSelectChat(res.data.chat.id);
+    setChats([res.data.chat, ...chats]);
+    await handleSelectChat(res.data.chat);
   }
 
-  const handleSelectChat = async (chatId: string) => {
-    refresh();
-    let currentChat = chats.find(c => {return c.id === chatId}) || null;
+  const handleMessageSubmit = async () => {
+    if(!selectedChat) {return;}
 
-    setSelectedChat(currentChat);
-    if(!currentChat) {
-      return;
+    const newMessage:Message = {
+      chat_id: selectedChat.id,
+      content: input,
+      role: "user",
+      id: 'temp',
+      timestamp: new Date().getTime(),
+      sent: false
     }
+
+    setMessages([...messages, newMessage]);
+    refresh();
+
+    setIsLoadingChat(true);
+    const req = await fetch('/api/new-message', {
+      method: "POST",
+      body: JSON.stringify({newMessage, language: selectedChat?.language, history: messages.slice(-20)}),
+      headers: {
+        "Content-Type": "application/json"
+      },
+    });
+
+    setIsLoadingChat(false);
+    const res = await req.json();
+    if(!res.ok) {
+      alert(res.message);
+    }
+
+    setMessages([...messages, res.data.newResponse]);
+  };
+
+  const handleMessageResubmit = async () => {
+    if(!selectedChat) {return;}
+
+    refresh();
+
+    setIsLoadingChat(true);
+    const req = await fetch('/api/new-message', {
+      method: "POST",
+      body: JSON.stringify({language: selectedChat?.language, history: messages.slice(-20)}),
+      headers: {
+        "Content-Type": "application/json"
+      },
+    });
+
+    setIsLoadingChat(false);
+    const res = await req.json();
+    if(!res.ok) {
+      alert(res.message);
+    }
+
+    setMessages([...messages, res.data.newResponse]);
+  };
+
+  const handleSelectChat = async (chat: Chat) => {
+    refresh();
+    setSelectedChat(chat);
     setIsLoading(true);
-    const req = await fetch(`/api/messages?id=${currentChat.id}`);
+    const req = await fetch(`/api/messages?id=${chat.id}`);
     const res = await req.json();
 
     setMessages(res.data);
@@ -106,6 +147,7 @@ export default function Home() {
               input={input}
               handleInputChange={handleInputChange}
               handleSubmit={handleMessageSubmit}
+              handleReattempt={handleMessageResubmit}
               isLoading={isLoadingChat}
               lang={selectedChat.language}
             />

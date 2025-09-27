@@ -15,14 +15,13 @@ import {
   HelpCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { UUID } from "crypto";
 import { type Chat } from "@/lib/types";
 
 interface SidebarProps {
   chats: Chat[];
-  selectedChatId: UUID | null;
+  selectedChatId: string | null;
   onNewChat: () => void;
-  onSelectChat: (chatId: string) => void;
+  onSelectChat: (chat: Chat) => void;
 }
 
 export function Sidebar({ chats, selectedChatId, onNewChat, onSelectChat }: SidebarProps) {
@@ -71,7 +70,7 @@ export function Sidebar({ chats, selectedChatId, onNewChat, onSelectChat }: Side
                   <Button
                     key={chat.id}
                     variant="ghost"
-                    onClick={() => onSelectChat(chat.id)}
+                    onClick={() => onSelectChat(chat)}
                     className={cn(
                       "h-auto w-full justify-start p-3 text-left hover:bg-gray-500 hover:opacity-80",
                       selectedChatId === chat.id && "border-2"

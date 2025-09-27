@@ -1,4 +1,3 @@
-import { UUID } from "crypto";
 import { Timestamp } from "next/dist/server/lib/cache-handlers/types";
 
 import { ArrowDown, ArrowUp, ChevronsUpDown, Heart, CircleSlash2 } from "lucide-react";
@@ -37,6 +36,30 @@ export const languages:Language[] = [
     {
         value: "fr",
         label: "French"
+    },
+    {
+        value: "en",
+        label: "English"
+    },
+    {
+        value: "it",
+        label: "Italian"
+    },
+    {
+        value: "ja",
+        label: "Japanese"
+    },
+    {
+        value: "po",
+        label: "Polish"
+    },
+    {
+        value: "sv",
+        label: "Swedish"
+    },
+    {
+        value: "tr",
+        label: "Turkish"
     },
 ];
 
@@ -113,6 +136,14 @@ export type ChatResponse = {
     extracted_entries: string[],
     title?:string
 }
+export type EntryResponse = {
+    isValid: boolean,
+    senses: [],
+    examples: {
+        value: string,
+        translation: string
+    }[]
+}
 
 //------------------------------------------
 
@@ -122,7 +153,7 @@ export type Language = {
 }
 
 export type Chat = {
-    id: UUID,
+    id: string,
     title: string,
     preview: string,
     timestamp: Timestamp,
@@ -130,15 +161,16 @@ export type Chat = {
 }
 
 export type Message = {
-    id: UUID,
-    chat_id: UUID,
+    id: string,
+    chat_id: string,
     role: string,
     content: string,
-    timestamp: Timestamp
+    timestamp: Timestamp,
+    sent: boolean
 }
 
 export type Entry = {
-    id: UUID,
+    id: string,
     value: string,
     language: string,
     times_seen: number,
@@ -148,29 +180,29 @@ export type Entry = {
 }
 
 export type Sense = {
-    id: UUID,
-    entry_id: UUID,
+    id: string,
+    entry_id: string,
     value: string
 }
 
 export type Example = {
-    id: UUID,
-    entry_id: UUID,
+    id: string,
+    entry_id: string,
     value: string,
     translation: string
 }
 
 export type PracticeSession = {
-    id: UUID,
+    id: string,
     language: string,
     score: number,
     timestamp: Timestamp
 }
 
 export type SessionExercise = {
-    id: UUID,
-    session_id: UUID,
-    entry_id: UUID,
+    id: string,
+    session_id: string,
+    entry_id: string,
     correct: boolean,
     completed: boolean
 }

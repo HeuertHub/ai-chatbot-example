@@ -2,32 +2,26 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { openai, defaultModel } from "@/lib/openai";
-import { getChatPrompt } from "@/lib/prompts";
+import { getEntryPrompt } from "@/lib/prompts";
 import { stripJSONFence } from "@/lib/stripJSONFence";
-import { type ChatResponse, type Message } from "@/lib/types";
+import { type EntryResponse, type Message } from "@/lib/types";
 import { createNewChat, newUserMessage, newAssistantMessage, handleExtractedEntries, messageSent } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
     const body = await req.json();
     let newResponse:Message;
     try {
-        const { newMessage, language, history } = body;
-        const historyResponse = [];
-        const dbMessage = !!newMessage ? await newUserMessage({chat_id: newMessage.chat_id, content: newMessage.content}) : history.pop();
-        for(let row of history) {
-            historyResponse.push({role: row.role, content: row.content});
-        }
+        const { language, entry } = body;
 
-        const systemPrompt = getChatPrompt(language, false);
+        const systemPrompt = getEntryPrompt(language);
         const resp = await openai.chat.completions.create({
             model: defaultModel,
             messages: [
                 { role: "system", content: systemPrompt },
-                ...historyResponse,
-                { role: "user", content: dbMessage.content }
+                { role: "user", content: entry }
             ],
             response_format: { type: "json_object" },
-            temperature: 0.9
+            temperature: 0
         });
 
         const rawText = resp.choices?.[0]?.message?.content ?? "";
@@ -35,25 +29,20 @@ export async function POST(req: NextRequest) {
 
         let json;
         try {
-            json = text ? (JSON.parse(text) as ChatResponse) : null;
+            json = text ? (JSON.parse(text) as EntryResponse) : null;
         } catch (err: unknown) {
             return NextResponse.json({ ok: false, data: null, message: (err as Error).message });
         }
-        if(!json?.response) {
-            throw "Empty response";
+        if(!json?.isValid) {
+            throw "Entry not valid or return JSON is empty";
         }
 
-        await handleExtractedEntries(json?.extracted_entries || []);
-        await messageSent({id: dbMessage.id});
-        newResponse = await newAssistantMessage({chat_id: dbMessage.chat_id, content: json.response});
+        // Handle Entry, senses and examples insert
     } catch(err) {
         return NextResponse.json({ ok: false, data: null, message: (err as Error).message });
     }    
 
     return NextResponse.json({
-        ok: true,
-        data: {
-            response: newResponse
-        }
+        ok: true
     });
 }

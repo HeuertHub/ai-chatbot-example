@@ -1,4 +1,3 @@
-import { UUID } from "crypto";
 import { createClient } from "./supabase-server";
 
 export async function createNewChat({language, title, preview}:{language:string, title:string, preview:string}) {
@@ -15,7 +14,7 @@ export async function createNewChat({language, title, preview}:{language:string,
     return data;
 }
 
-export async function updateChat({chat_id, preview}:{chat_id:UUID, preview: string}) {
+export async function updateChat({chat_id, preview}:{chat_id:string, preview: string}) {
     const supabase = await createClient();
 
     const { data, error } = await supabase.from('chats').update({
@@ -27,7 +26,7 @@ export async function updateChat({chat_id, preview}:{chat_id:UUID, preview: stri
     return data;
 }
 
-export async function newUserMessage({chat_id, content}:{chat_id:UUID, content:string}) {
+export async function newUserMessage({chat_id, content}:{chat_id:string, content:string}) {
     const supabase = await createClient();
 
     const { data, error } = await supabase.from('messages').insert({
@@ -37,18 +36,34 @@ export async function newUserMessage({chat_id, content}:{chat_id:UUID, content:s
     }).select('*').single();
 
     if(error) throw error;
+    
+    return data;
 }
 
-export async function newPartnerMessage({chat_id, content}:{chat_id:UUID, content:string}) {
+export async function messageSent({id}:{id:string}) {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase.from('messages').update({
+        sent: true
+    }).eq('id', id);
+
+    if(error) throw error;
+
+    return data;
+}
+
+export async function newAssistantMessage({chat_id, content}:{chat_id:string, content:string}) {
     const supabase = await createClient();
 
     const { data, error } = await supabase.from('messages').insert({
         chat_id,
-        role: "partner",
+        role: "assistant",
         content
     }).select('*').single();
 
     if(error) throw error;
+
+    return data;
 }
 
 export async function getChats() {
@@ -68,7 +83,7 @@ export async function getChatMessages({chat_id}:{chat_id:string | null}) {
         .from('messages')
         .select('*')
         .eq('chat_id', chat_id)
-        .order('timestamp', {ascending: false});
+        .order('timestamp', {ascending: true});
 
     if(error) throw error;
 
@@ -77,4 +92,17 @@ export async function getChatMessages({chat_id}:{chat_id:string | null}) {
 
 export async function handleExtractedEntries(entries: string[]) {
 
+}
+
+export async function getDictionary() {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+        .from('entries')
+        .select('*')
+        .order('value', {ascending: true});
+
+    if(error) throw error;
+
+    return data;
 }

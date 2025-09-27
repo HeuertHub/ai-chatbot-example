@@ -9,12 +9,14 @@ import { DataTableViewOptions } from "./data-table-view-options";
 
 import { languages, entryStatusIcons, favoriteOptions } from "@/lib/types";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
+import { NewEntry } from "../dictionary/NewEntry";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
+  onRefresh: ()=>void;
 }
 
-export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>) {
+export function DataTableToolbar<TData>({ table, onRefresh }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
   return (
@@ -56,7 +58,7 @@ export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>)
       </div>
       <div className="flex items-center gap-2">
         <DataTableViewOptions table={table} />
-        <Button size="sm">Add Entry</Button>
+        <NewEntry onRefresh={onRefresh}/>
       </div>
     </div>
   );
