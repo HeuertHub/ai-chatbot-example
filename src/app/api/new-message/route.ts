@@ -9,11 +9,12 @@ import { createNewChat, newUserMessage, newAssistantMessage, handleExtractedEntr
 
 export async function POST(req: NextRequest) {
     const body = await req.json();
+    let dbMessage:Message;
     let newResponse:Message;
     try {
         const { newMessage, language, history } = body;
         const historyResponse = [];
-        const dbMessage = !!newMessage ? await newUserMessage({chat_id: newMessage.chat_id, content: newMessage.content}) : history.pop();
+        dbMessage = !!newMessage ? await newUserMessage({chat_id: newMessage.chat_id, content: newMessage.content}) : history.pop();
         for(let row of history) {
             historyResponse.push({role: row.role, content: row.content});
         }
@@ -53,6 +54,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
         ok: true,
         data: {
+            message: dbMessage,
             response: newResponse
         }
     });

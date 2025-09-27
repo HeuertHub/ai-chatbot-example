@@ -78,10 +78,12 @@ export default function Home() {
     setIsLoadingChat(false);
     const res = await req.json();
     if(!res.ok) {
+      setMessages([...messages, newMessage]);
       alert(res.message);
+    } else {
+      setMessages([...messages, res.data.message, res.data.response]);
+      setSentMessage(res.data.message.id);
     }
-
-    setMessages([...messages, res.data.newResponse]);
   };
 
   const handleMessageResubmit = async () => {
@@ -102,10 +104,19 @@ export default function Home() {
     const res = await req.json();
     if(!res.ok) {
       alert(res.message);
+    } else {
+      setSentMessage(res.data.message.id);
+      setMessages([...messages, res.data.response]);
     }
-
-    setMessages([...messages, res.data.newResponse]);
   };
+
+  const setSentMessage = (id: string) => {
+    setMessages(prev =>
+      prev.map(m =>
+        m.id === id ? { ...m, sent: true } : m
+      )
+    );
+  }
 
   const handleSelectChat = async (chat: Chat) => {
     refresh();

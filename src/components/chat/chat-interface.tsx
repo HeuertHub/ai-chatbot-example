@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Copy, Share, ThumbsUp, ThumbsDown, Send, X, Mic, BookMarked } from "lucide-react";
 import { type Message, type Chat } from "@/lib/types";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import MessageRow from "./message-row";
 import { speak, stop, getVoicesByLang, TTSVoice } from "@/lib/tts";
 import {
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/tooltip";
 import { languages } from "@/lib/types";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../ui/select";
+import { NewEntry } from "../dictionary/NewEntry";
 
 interface ChatInterfaceProps {
   chat: Chat;
@@ -45,6 +46,7 @@ export function ChatInterface({
   const [selectedText, setSelectedText] = useState<string | null>(null);
   const chatDate = new Date(chat.timestamp).toDateString();
   const currentLanguage = languages.find(x => x.value === chat.language)?.label;
+  const chatContainerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     getVoicesByLang(lang).then((list) => {
@@ -70,15 +72,32 @@ export function ChatInterface({
     setSelectedText(null);
   }
 
+  const onRefresh = () => {
+    clearTextSelect();
+  }
+
+  const scrollToBottom = () => {
+    chatContainerRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+  }
+
+  useEffect(() => {
+    scrollToBottom();
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   return (
     <div className="flex flex-1 flex-col">
       <div className="border-b p-6">
-        <div className="h-6 mx-auto max-w-3xl flex flex-row items-center justify-between">
-          <div className="h-5 w-5">
+        <div className="h-6 mx-auto max-w-3xl flex flex-row gap-9 items-center justify-between">
+          <div className="h-5 w-5 self-start mr-15">
             { selectedText && 
               <Tooltip>
                 <TooltipTrigger>
-                  <BookMarked className="h-5 w-5 transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110"/>
+                  {/* <BookMarked className="h-5 w-5 transition duration-300 ease-in-out hover:-translate-y-1 hover:scale-110"/> */}
+                  <NewEntry onRefresh={onRefresh} newInput={selectedText} lang={chat.language}/>
                 </TooltipTrigger>
                 <TooltipContent>
                   <div className="flex flex-col">
@@ -89,18 +108,20 @@ export function ChatInterface({
               </Tooltip>
             }
           </div>
-          <Select value={selectedVoice || undefined} onValueChange={setSelectedVoice}>
-            <SelectTrigger className="w-[280px]">
-              <SelectValue placeholder="Pick a voice"/>
-            </SelectTrigger>
-            <SelectContent>
-              {voices.map((voice) => {
-                return (
-                  <SelectItem key={voice.voiceURI} value={voice.voiceURI}>{voice.name}</SelectItem>
-                )
-              })}
-            </SelectContent>
-          </Select>
+          <div>
+            <Select value={selectedVoice || undefined} onValueChange={setSelectedVoice}>
+              <SelectTrigger className="w-[280px]">
+                <SelectValue placeholder="Pick a voice"/>
+              </SelectTrigger>
+              <SelectContent>
+                {voices.map((voice) => {
+                  return (
+                    <SelectItem key={voice.voiceURI} value={voice.voiceURI}>{voice.name}</SelectItem>
+                  )
+                })}
+              </SelectContent>
+            </Select>
+          </div>
           <div>
             <p>{chat.title} • {chatDate} • {currentLanguage}</p>
           </div>
@@ -108,9 +129,9 @@ export function ChatInterface({
       </div>
       {/* Chat Messages */}
       <ScrollArea className="flex-1 p-6">
-        <div className="mx-auto max-w-3xl space-y-6">
+        <div className="mx-auto max-w-3xl space-y-6 h-50" >
           {messages.map((message) => (
-            <div key={message.id} className="flex gap-4">
+            <div key={message?.id || 'new-message'} className="flex gap-4">
               <MessageRow message={message} onPlay={handleSpeak} onTextSelect={handleTextSelect} onReattempt={handleReattempt}/>
               {speaking && <p>Speaking...</p>}
             </div>
@@ -118,6 +139,7 @@ export function ChatInterface({
           {isLoading && (
             <MessageRow onPlay={handleSpeak} onTextSelect={handleTextSelect} onReattempt={handleReattempt}/>
           )}
+          <div ref={chatContainerRef}/>
         </div>
       </ScrollArea>
 
@@ -139,7 +161,7 @@ export function ChatInterface({
                 className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
                 disabled={isLoading}
               />
-              <Button type="button" variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <Button type="button" variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={scrollToBottom}>
                 <Mic className="h-4 w-4" />
               </Button>
               <Button

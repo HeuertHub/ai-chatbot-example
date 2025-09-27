@@ -6,9 +6,9 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { languages, type Chat } from "@/lib/types";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 
-export function NewEntry({onRefresh}:{onRefresh:()=>void}) {
-  const [input, setInput] = useState<string>('');
-  const [language, setLanguage] = useState<string>(languages[0].value);
+export function NewEntry({onRefresh, newInput, lang}:{onRefresh:()=>void, newInput?:string, lang?:string}) {
+  const [input, setInput] = useState<string>(newInput || '');
+  const [language, setLanguage] = useState<string>(lang || languages[0].value);
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
