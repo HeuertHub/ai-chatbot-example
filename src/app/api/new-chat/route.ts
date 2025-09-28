@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ ok: false, data: null, message: (err as Error).message });
         }
 
-        await handleExtractedEntries(json?.extracted_entries || []);
+        void handleExtractedEntries(json?.extracted_entries || [], language).catch(err => console.error(err.message));
 
         newChat = await createNewChat({
             language, 

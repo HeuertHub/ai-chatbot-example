@@ -1,6 +1,15 @@
 import { Timestamp } from "next/dist/server/lib/cache-handlers/types";
 
-import { ArrowDown, ArrowUp, ChevronsUpDown, Heart, CircleSlash2 } from "lucide-react";
+import { Heart, 
+    CircleSlash2, 
+    CircleDashed, 
+    CircleDotDashed, 
+    CircleDot, 
+    CircleEllipsis, 
+    CircleArrowUp,
+    CircleCheckBig,
+    CircleStar
+ } from "lucide-react";
 
 enum EntryStatus {
     NEW = "New",
@@ -81,7 +90,7 @@ export const entryStatusIcons = [
         value: "NEW",
         label: "New",
         description: "Not yet studied",
-        icon: ArrowDown,
+        icon: CircleDashed,
         min: 0,
         max: 4
     },
@@ -89,7 +98,7 @@ export const entryStatusIcons = [
         value: "INTRODUCED",
         label: "Introduced",
         description: "First exposure",
-        icon: ArrowUp,
+        icon: CircleDotDashed,
         min: 5,
         max: 14
     },
@@ -97,7 +106,7 @@ export const entryStatusIcons = [
         value: "LEARNING",
         label: "Learning",
         description: "In active practice",
-        icon: ChevronsUpDown,
+        icon: CircleDot,
         min: 15,
         max: 24
     },
@@ -105,7 +114,7 @@ export const entryStatusIcons = [
         value: "FAMILIAR",
         label: "Familiar",
         description: "Recognizable with effort",
-        icon: ChevronsUpDown,
+        icon: CircleEllipsis,
         min: 25,
         max: 34
     },
@@ -113,7 +122,7 @@ export const entryStatusIcons = [
         value: "PROFICIENT",
         label: "Proficient",
         description: "Usually recalled correctly",
-        icon: ChevronsUpDown,
+        icon: CircleArrowUp,
         min: 35,
         max: 49
     },
@@ -121,7 +130,7 @@ export const entryStatusIcons = [
         value: "MASTERED",
         label: "Mastered",
         description: "Consistently recalled",
-        icon: ChevronsUpDown,
+        icon: CircleCheckBig,
         min: 50,
         max: 69
     },
@@ -129,7 +138,7 @@ export const entryStatusIcons = [
         value: "RETAINED",
         label: "Retained",
         description: "Long-term stable knowledge",
-        icon: ChevronsUpDown,
+        icon: CircleStar,
         min: 70,
         max: Infinity
     },

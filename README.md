@@ -37,4 +37,4 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 https://shadcnexamples.com/onboarding-flow for exercises
 
-TO DO: Status Icons, Handle extracted entries, exercises
+TO DO: entry page, exercises

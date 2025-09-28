@@ -7,6 +7,7 @@ import { languages, entryStatusIcons } from "@/lib/types";
 import { Entry } from "@/lib/types";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
+import { EntryCard } from "../dictionary/EntryCard";
 
 export const columns: ColumnDef<Entry>[] = [
   {
@@ -54,7 +55,7 @@ export const columns: ColumnDef<Entry>[] = [
   {
     accessorKey: "value",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Entry" />,
-    cell: ({ row }) => <div className="w-[80px]">{row.getValue("value")}</div>,
+    cell: ({ row }) => <EntryCard entry={row.original}/>,
     enableSorting: false,
     enableHiding: false
   },

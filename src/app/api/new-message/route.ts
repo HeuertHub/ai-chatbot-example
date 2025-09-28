@@ -44,7 +44,9 @@ export async function POST(req: NextRequest) {
             throw "Empty response";
         }
 
-        await handleExtractedEntries(json?.extracted_entries || []);
+        console.log(json.extracted_entries);
+
+        void handleExtractedEntries(json?.extracted_entries || [], language).catch(err => console.error(err.message));
         await messageSent({id: dbMessage.id});
         newResponse = await newAssistantMessage({chat_id: dbMessage.chat_id, content: json.response});
     } catch(err) {
