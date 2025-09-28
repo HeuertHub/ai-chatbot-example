@@ -1,4 +1,4 @@
-"use server"
+"use client"
 
 import {
   Dialog,
@@ -14,24 +14,50 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "../ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Entry } from "@/lib/types";
-import { getSenses, getExamples } from "@/lib/db";
+import { languages } from "@/lib/types";
+import { useState, useEffect } from "react";
+import { ScrollArea } from "../ui/scroll-area";
 
-export async function EntryCard({entry}:{entry:Entry}) {
-  const senses:string[] = await getSenses({entry_id: entry.id});
-  const examples:{value:string, translation:string}[] = await getExamples({entry_id: entry.id});
+export function EntryCard({ entry }: { entry: Entry }) {
+  const [open, setOpen] = useState(false);
+  const [senses, setSenses] = useState<{ id: string, entry_id: string, value: string }[]>([]);
+  const [examples, setExamples] = useState<{ id: string, entry_id: string, value: string, translation: string }[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [fetched, setFetched] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    if(senses.length > 0 && examples.length > 0) return;
+    const c = new AbortController();
+    (async () => {
+      try {
+        setLoading(true);
+        const req = await fetch(`/api/entry-data?id=${entry.id}`);
+        const res = await req.json();
+        setSenses(res.data.senses);
+        setExamples(res.data.examples);
+      } catch (err: any) {
+        if (err?.name !== "AbortError") console.error(err?.message ?? "Something went wrong");
+      } finally {
+        setLoading(false);
+      }
+    })();
+    return () => c.abort();
+  }, [open]);
 
   return (
-    <Dialog>
-      <form>
-        <DialogTrigger asChild>
-          <div className="w-[80px]">{entry.value}</div>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <div className="w-[80px]">{entry.value}</div>
+      </DialogTrigger>
+        <ScrollArea>
+      <DialogContent className="sm:max-w-[425px]">
+
           <DialogHeader>
             <DialogTitle>{entry.value}</DialogTitle>
             <DialogDescription>
               <Badge variant="secondary" className="text-xs">
-                {entry.language}
+                {languages.find(l => l.value === entry.language)?.label}
               </Badge>
             </DialogDescription>
           </DialogHeader>
@@ -44,13 +70,13 @@ export async function EntryCard({entry}:{entry:Entry}) {
                 <ol className="space-y-2">
                   {senses.map((s, i) => (
                     <li
-                      key={`${i}-${s}`}
+                      key={`${i}-${s.entry_id}`}
                       className="rounded-md bg-muted/40 px-3 py-2 text-sm"
                     >
                       <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded bg-muted text-[11px]">
                         {i + 1}
                       </span>
-                      <span className="align-middle">{s}</span>
+                      <span className="align-middle">{s.value}</span>
                     </li>
                   ))}
                 </ol>
@@ -79,8 +105,8 @@ export async function EntryCard({entry}:{entry:Entry}) {
               </section>
             </CardContent>
           </Card>
-        </DialogContent>
-      </form>
+      </DialogContent>
+        </ScrollArea>
     </Dialog>
   )
 }

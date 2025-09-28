@@ -26,7 +26,7 @@ export function getEntryPrompt(language:string) {
         `You must respond in **strict JSON** with the following structure only:`,
         `{"isValid": boolean`,
         `"senses": [ `,
-        `    // Up to 10 possible senses (translations or meanings in English) of the input word/expression`,
+        `    // Up to 5 possible senses (translations or meanings in English) of the input word/expression`,
         `],`,
         `"examples": [`,
         `    {`,
