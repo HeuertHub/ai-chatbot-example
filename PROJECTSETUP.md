@@ -9,7 +9,7 @@ pnpm add -D tailwind-merge class-variance-authority
 pnpm add lucide-react
 pnpx shadcn@latest init -d
 
-pnpm dlx shadcn@latest add button card input select slider switch badge tabs tooltip dialog dropdown-menu progress textarea label sheet separator sonner scroll-area avatar skeleton drawer checkbox command popover table
+pnpm dlx shadcn@latest add button card input select slider switch badge tabs tooltip dialog dropdown-menu progress textarea label sheet separator sonner scroll-area avatar skeleton drawer checkbox command popover table alert
 pnpm add @tanstack/react-table
 pnpm add @ai-sdk/react
 
