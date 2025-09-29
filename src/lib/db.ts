@@ -242,3 +242,28 @@ export async function getExamples({entry_id}:{entry_id:string}) {
 
     return data;
 }
+
+export async function getActivePracticeSession() {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+        .from('practice_sessions')
+        .select(`
+            id,
+            language,
+            score,
+            timestamp,
+            session_exercises (
+                id,
+                
+                session_id,
+                entry_id,
+                correct,
+                complete
+            )
+            `)
+}
+
+export async function createPracticeSession() {
+
+}

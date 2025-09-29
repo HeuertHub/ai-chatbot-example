@@ -33,6 +33,10 @@ export default function Home() {
     setChats(res);
   }
 
+  const providePracticeSession = async() => {
+    const req = await fetch('/api/provide-practice');
+  }
+
   const handleChatSubmitted = async(input:string, language:string) => {
     const req = await fetch('/api/new-chat', {
       method: "POST",
@@ -135,6 +139,7 @@ export default function Home() {
 
   useEffect(() => {
     getChats();
+    providePracticeSession();
   }, []);
 
   return (

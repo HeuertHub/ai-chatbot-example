@@ -58,6 +58,7 @@ const QUESTIONS: LessonQuestion[] = [
 export default function NavBar() {
   const { theme, systemTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [practiceDialogOpen, setPracticeDialogOpen] = useState(false);
   const [entries, setEntries] = useState<Entry[]>([]);
 
   useEffect(() => setMounted(true), []);
@@ -72,6 +73,14 @@ export default function NavBar() {
     const res = await req.json();
 
     setEntries(res.data);
+  }
+
+  const handleStartPractice = () => {
+    let answer = confirm('Do you want to open?');
+
+    if(answer) {
+      setPracticeDialogOpen(true)
+    }
   }
 
   if (!mounted) {
@@ -95,7 +104,7 @@ export default function NavBar() {
                 </Button>
               </DrawerTrigger>
               <DrawerContent>
-                <div className="min-h-3/4 mx-auto w-full max-w-7xl">
+                <div className="min-h-3/4 h-auto mx-auto w-full max-w-7xl">
                   <DrawerHeader>
                     <DrawerTitle>
                       Saved Words & Expressions
@@ -117,7 +126,7 @@ export default function NavBar() {
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <Dialog>
+            <Dialog open={practiceDialogOpen} onOpenChange={handleStartPractice}>
               <DialogTrigger asChild>
                 <Button
                   size="icon"
@@ -127,6 +136,7 @@ export default function NavBar() {
                   <Dumbbell className="h-5 w-5" />
                 </Button>
               </DialogTrigger>
+              
                 <DialogContent key="practice-dialog">
                   <DialogHeader>
                     <DialogTitle>

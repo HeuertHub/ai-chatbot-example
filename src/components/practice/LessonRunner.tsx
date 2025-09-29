@@ -131,7 +131,7 @@ export function LessonRunner({
           <Alert>
             <AlertTitle>Great job!</AlertTitle>
             <AlertDescription>
-              Keep practicing to improve your accuracy.
+              Lesson finished. Keep practicing to improve your accuracy.
             </AlertDescription>
           </Alert>
         </CardContent>
