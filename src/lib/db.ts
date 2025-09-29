@@ -255,15 +255,127 @@ export async function getActivePracticeSession() {
             timestamp,
             session_exercises (
                 id,
-                
                 session_id,
                 entry_id,
                 correct,
-                complete
+                completed,
+                type,
+                options,
+                prompt,
+                explanation
             )
-            `)
+        `)
+        .eq('score', 0);
+
+    if(error) throw error;
+
+    return data;
 }
 
 export async function createPracticeSession() {
+    const supabase = await createClient();
 
+    const { data, error } = await supabase
+        .from('entries')
+        .select(`
+            id,
+            value,
+            language,
+            times_seen,
+            status,
+            senses,
+            favorite,
+            senses (
+                id,
+                entry_id,
+                value
+            ),
+            examples (
+                id,
+                entry_id,
+                value,
+                translation
+            )
+        `)
+        .order('times_seen', {ascending: true})
+        .limit(40);
+
+    if(error) throw error;
+
+    return data;
+}
+
+function getRandom(arr: any[], n:number) {
+    const shuffled = [...arr];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const randomIndex = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[i]];
+    }
+
+    return shuffled.slice(0, n);
+}
+
+function generateFill(entry) {
+    const exercise = {
+        type: "fill-in-blank",
+        prompt: "",
+        options: [],
+        correctOptionIndex: 0,
+        explanation: "",
+    };
+    let filteredExamples = examples.filter(e => e.entry_id === entry.id && e.value.includes(entry.value));
+    if(!filteredExamples || filteredExamples.length === 0) return null;
+    const example = getRandom([...filteredExamples], 1)[0];
+    if(!example || example.length === 0) return null;
+
+
+    const blank = '_'.repeat(entry.value.length);
+    const regex = new RegExp(`${entry.value}`, 'gi');
+    exercise.prompt = example.value.replace(regex, blank);
+
+    if(!exercise.prompt.includes(blank)) return null;
+    exercise.options.push(entry.value);
+
+    const otherEntries = entries.filter(e => e.language === entry.language && e.id !== entry.id);
+    if(otherEntries.length < 2) return null;
+    const otherRandom = getRandom(otherEntries, 2);
+
+    otherRandom.forEach(o => {
+        exercise.options.push(o.value);
+    });
+
+    exercise.explanation = example.translation;
+
+    return exercise;
+}
+
+function generateMeaning(entry) {
+    const exercise = {
+        type: "word-meaning",
+        prompt: "",
+        options: [],
+        correctOptionIndex: 0,
+        explanation: "",
+    }
+
+    exercise.prompt = entry.value;
+    const correctSenses = senses.filter(s => s.entry_id === entry.id);
+    const incorrectSenses = senses.filter(s => s.entry_id !== entry.id);
+
+    if(correctSenses.length === 0 || incorrectSenses.length < 2) return null;
+
+    exercise.options.push(getRandom(correctSenses, 1)[0].value);
+    const incorrectSensesRandom = getRandom(incorrectSenses, 2);
+    incorrectSensesRandom.forEach(s => {
+        exercise.options.push(s.value);
+    });
+
+    let filteredExamples = examples.filter(e => e.entry_id === entry.id && e.value.includes(entry.value));
+    if(!filteredExamples || filteredExamples.length === 0) return null;
+    const example = getRandom([...filteredExamples], 1)[0];
+    if(!example || example.length === 0) return null;
+
+    exercise.explanation = example.value;
+
+    return exercise;
 }

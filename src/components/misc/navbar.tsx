@@ -33,6 +33,7 @@ import {
 import { DictionaryTable } from '../dictionary/DictionaryTable';
 import { type Entry } from "@/lib/types";
 import { LessonRunner, LessonQuestion } from "@/components/practice/LessonRunner";
+import { ScrollArea } from '../ui/scroll-area';
 
 const QUESTIONS: LessonQuestion[] = [
   {
@@ -78,7 +79,7 @@ export default function NavBar() {
   const handleStartPractice = () => {
     let answer = confirm('Do you want to open?');
 
-    if(answer) {
+    if (answer) {
       setPracticeDialogOpen(true)
     }
   }
@@ -103,8 +104,8 @@ export default function NavBar() {
                   <BookA className="h-5 w-5" />
                 </Button>
               </DrawerTrigger>
-              <DrawerContent>
-                <div className="min-h-3/4 h-auto mx-auto w-full max-w-7xl">
+              <DrawerContent className="">
+                <div className="mx-auto w-full max-w-7xl overflow-y-scroll">
                   <DrawerHeader>
                     <DrawerTitle>
                       Saved Words & Expressions
@@ -113,7 +114,7 @@ export default function NavBar() {
                       Search through the words and expressions you saved
                     </DrawerDescription>
                   </DrawerHeader>
-                  <DictionaryTable entries={entries} onRefresh={loadEntries}/>
+                  <DictionaryTable entries={entries} onRefresh={loadEntries} />
                   <DrawerFooter>
                     <p className="text-sm text-muted-foreground text-center">Click anywhere outside to close</p>
                   </DrawerFooter>
@@ -136,8 +137,7 @@ export default function NavBar() {
                   <Dumbbell className="h-5 w-5" />
                 </Button>
               </DialogTrigger>
-              
-                <DialogContent key="practice-dialog">
+              <DialogContent key="practice-dialog">
                   <DialogHeader>
                     <DialogTitle>
                       Practice session
@@ -145,15 +145,15 @@ export default function NavBar() {
                   </DialogHeader>
                   <div className="p-6 flex justify-center">
                     <LessonRunner
-                            title="Basics 1"
-                            description="Choose the correct answer."
-                            questions={QUESTIONS}
-                            onFinish={({ total, correct, accuracy }) => {
-                              console.log("Finished:", { total, correct, accuracy });
-                            }}
-                          />
+                      title="Basics 1"
+                      description="Choose the correct answer."
+                      questions={QUESTIONS}
+                      onFinish={({ total, correct, accuracy }) => {
+                        console.log("Finished:", { total, correct, accuracy });
+                      }}
+                    />
                   </div>
-                </DialogContent>
+              </DialogContent>
             </Dialog>
           </TooltipTrigger>
           <TooltipContent side="right">Practice</TooltipContent>

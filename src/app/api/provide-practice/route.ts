@@ -4,7 +4,7 @@ import { getActivePracticeSession, createPracticeSession } from "@/lib/db";
 export async function GET(req: NextRequest) {
     const activePracticeSession = await getActivePracticeSession();
 
-    if(!!activePracticeSession) return NextResponse.json({ok: true, data: activePracticeSession});
+    if(!!activePracticeSession && activePracticeSession.length !== 0) return NextResponse.json({ok: true, data: activePracticeSession});
 
     const newPracticeSession = await createPracticeSession();
 

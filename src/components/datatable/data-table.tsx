@@ -71,9 +71,8 @@ export function DataTable<TData, TValue>({ columns, data, onRefresh }: DataTable
   return (
     <div className="flex flex-col gap-4">
       <DataTableToolbar table={table} onRefresh={onRefresh} />
-      <ScrollArea>
-        <div className="rounded-md border max-h-[400px]">
-          <Table>
+        <div className="rounded-md border">
+          <Table className="">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
@@ -110,7 +109,6 @@ export function DataTable<TData, TValue>({ columns, data, onRefresh }: DataTable
             </TableBody>
           </Table>
         </div>
-      </ScrollArea>
       <DataTablePagination table={table} />
     </div>
   );

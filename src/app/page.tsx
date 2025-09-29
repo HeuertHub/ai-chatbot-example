@@ -35,6 +35,9 @@ export default function Home() {
 
   const providePracticeSession = async() => {
     const req = await fetch('/api/provide-practice');
+    const res = await req.json();
+
+    console.log(res);
   }
 
   const handleChatSubmitted = async(input:string, language:string) => {
