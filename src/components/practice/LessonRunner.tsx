@@ -9,32 +9,15 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircle2, XCircle } from "lucide-react";
-
-export type LessonQuestion =
-  | {
-    id: string;
-    type: "fill-in-blank"; 
-    prompt: string; 
-    options: string[]; 
-    correctOptionIndex: number; 
-    explanation?: string; 
-  }
-  | {
-    id: string;
-    type: "word-meaning"; 
-    prompt: string; 
-    options: string[]; 
-    correctOptionIndex: number;
-    explanation?: string;
-    exampleSentence?: string; 
-  };
+import { PracticeSession, SessionExercise } from "@/lib/types";
 
 export type LessonRunnerProps = {
   title?: string;
   description?: string;
-  questions: LessonQuestion[];
+  questions: SessionExercise[];
+  session: PracticeSession;
   shuffleOptions?: boolean; 
-  onFinish?: (result: { total: number; correct: number; accuracy: number }) => void;
+  onFinish?: (result: { session:PracticeSession, questions:SessionExercise[] }) => void;
   className?: string;
 };
 
@@ -53,6 +36,7 @@ export function LessonRunner({
   title = "Lesson",
   description = "Pick the correct answer for each question.",
   questions,
+  session,
   shuffleOptions = true,
   onFinish,
   className,
@@ -63,10 +47,10 @@ export function LessonRunner({
   const [score, setScore] = React.useState(0);
 
   const prepared = React.useMemo(() => {
-    return questions.map((q) => {
+    return questions?.map((q) => {
       const base: Choice[] = q.options.map((opt, i) => ({
         label: opt,
-        isCorrect: i === q.correctOptionIndex,
+        isCorrect: i === 0,
       }));
       return shuffleOptions ? shuffled(base) : base;
     });
@@ -81,8 +65,12 @@ export function LessonRunner({
     if (selected == null) return;
     setLockedIn(true);
     const c = choices.find((c) => c.label === selected);
+    current.completed = true;
     if (c?.isCorrect) {
       setScore((s) => s + 1);
+      current.correct = true;
+    } else {
+      current.correct = false;
     }
   }
 
@@ -95,7 +83,9 @@ export function LessonRunner({
       const total = questions.length;
       const correct = score;
       const accuracy = total ? Math.round((correct / total) * 100) : 0;
-      onFinish?.({ total, correct, accuracy });
+      session.score = accuracy;
+      session.completed = true;
+      onFinish?.({ session, questions });
       setIndex((i) => i + 1);
     }
   }
@@ -164,7 +154,7 @@ export function LessonRunner({
         {current.type === "fill-in-blank" ? (
           <QuestionPromptFill prompt={current.prompt} />
         ) : (
-          <QuestionPromptWord word={current.prompt} example={current.exampleSentence} />
+          <QuestionPromptWord word={current.prompt} />
         )}
 
         <Separator />

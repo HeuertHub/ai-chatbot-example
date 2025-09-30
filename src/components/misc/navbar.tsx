@@ -31,36 +31,46 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { DictionaryTable } from '../dictionary/DictionaryTable';
-import { type Entry } from "@/lib/types";
-import { LessonRunner, LessonQuestion } from "@/components/practice/LessonRunner";
+import { languages, PracticeSession, SessionExercise, type Entry } from "@/lib/types";
+import { LessonRunner } from "@/components/practice/LessonRunner";
 import { ScrollArea } from '../ui/scroll-area';
+import { sleep } from '@/lib/sleep';
 
-const QUESTIONS: LessonQuestion[] = [
-  {
-    id: "q1",
-    type: "fill-in-blank",
-    prompt: "I ___ apples every day.",
-    options: ["eat", "eats", "ate"],
-    correctOptionIndex: 0,
-    explanation: "Present simple with 'I' uses the base form: 'I eat'.",
-  },
-  {
-    id: "q2",
-    type: "word-meaning",
-    prompt: "rápido",
-    options: ["slow", "fast", "quiet"],
-    correctOptionIndex: 1,
-    explanation: "‘Rápido’ means ‘fast/quick’.",
-    exampleSentence: "É um carro muito rápido.",
-  },
-  // ...add ~10 total
-];
+// const QUESTIONS: LessonQuestion[] = [
+//   {
+//     id: "q1",
+//     type: "fill-in-blank",
+//     prompt: "I ___ apples every day.",
+//     options: ["eat", "eats", "ate"],
+//     correctOptionIndex: 0,
+//     explanation: "Present simple with 'I' uses the base form: 'I eat'.",
+//   },
+//   {
+//     id: "q2",
+//     type: "word-meaning",
+//     prompt: "rápido",
+//     options: ["slow", "fast", "quiet"],
+//     correctOptionIndex: 1,
+//     explanation: "‘Rápido’ means ‘fast/quick’.",
+//     exampleSentence: "É um carro muito rápido.",
+//   },
+//   // ...add ~10 total
+// ];
 
 export default function NavBar() {
   const { theme, systemTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [practiceDialogOpen, setPracticeDialogOpen] = useState(false);
+  const [practiceSessionLoaded, setPracticeSessionLoaded] = useState(false);
   const [entries, setEntries] = useState<Entry[]>([]);
+  const [practiceSession, setPracticeSession] = useState<PracticeSession>({
+    completed:false, 
+    id: '',
+    language: '',
+    score: 0,
+    timestamp: new Date().getTime()
+  });
+  const [sessionExercises, setSessionExercises] = useState<SessionExercise[]>([]);
 
   useEffect(() => setMounted(true), []);
 
@@ -76,11 +86,45 @@ export default function NavBar() {
     setEntries(res.data);
   }
 
-  const handleStartPractice = () => {
-    let answer = confirm('Do you want to open?');
+  const handleStartPractice = async () => {
+    if(practiceDialogOpen) { setPracticeDialogOpen(false); return; }
 
-    if (answer) {
-      setPracticeDialogOpen(true)
+    const req = await fetch('/api/provide-practice');
+    const res = await req.json();
+
+    if(!res.ok) {
+      alert(res.message);
+    } else {
+      setPracticeSession(res.data.session);
+      setSessionExercises(res.data.exercises);
+
+      setPracticeSessionLoaded(true);
+      setPracticeDialogOpen(true);
+    }
+  }
+
+  const handleFinishSession = async({ session, questions }:{session:PracticeSession, questions: SessionExercise[]}) => {
+    const req = await fetch('/api/finish-practice',{
+      method: "POST",
+      body: JSON.stringify({session, questions}),
+      headers: {'Content-Type': 'application/json'}
+    });
+    const res = await req.json();
+
+    if(!res.ok) {
+      alert(res.message);
+    } else {
+      await sleep(3000);
+      setPracticeSession({
+        completed:false, 
+        id: '',
+        language: '',
+        score: 0,
+        timestamp: new Date().getTime()
+      });
+      setSessionExercises([]);
+      setPracticeSessionLoaded(false);
+      setPracticeDialogOpen(false);
     }
   }
 
@@ -143,16 +187,17 @@ export default function NavBar() {
                       Practice session
                     </DialogTitle>
                   </DialogHeader>
+                  {practiceSessionLoaded ? 
                   <div className="p-6 flex justify-center">
                     <LessonRunner
-                      title="Basics 1"
+                      title={languages.find(l => l.value === practiceSession?.language)?.label|| 'NA'}
                       description="Choose the correct answer."
-                      questions={QUESTIONS}
-                      onFinish={({ total, correct, accuracy }) => {
-                        console.log("Finished:", { total, correct, accuracy });
-                      }}
-                    />
+                      questions={sessionExercises}
+                      session={practiceSession}
+                      onFinish={handleFinishSession}
+                      /> 
                   </div>
+                    : ''}
               </DialogContent>
             </Dialog>
           </TooltipTrigger>

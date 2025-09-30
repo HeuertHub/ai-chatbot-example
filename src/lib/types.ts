@@ -208,6 +208,11 @@ export type Sense = {
     value: string
 }
 
+export type FullEntry = Entry & {
+    senses: Sense[],
+    examples: Example[]
+}
+
 export type Example = {
     id: string,
     entry_id: string,
@@ -219,13 +224,18 @@ export type PracticeSession = {
     id: string,
     language: string,
     score: number,
-    timestamp: Timestamp
+    timestamp: Timestamp,
+    completed: boolean
 }
 
 export type SessionExercise = {
-    id: string,
+    id?: string,
     session_id: string,
     entry_id: string,
     correct: boolean,
-    completed: boolean
+    completed: boolean,
+    type:string,
+    options:string[],
+    prompt:string,
+    explanation:string
 }
