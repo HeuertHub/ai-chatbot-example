@@ -221,7 +221,7 @@ export function LessonRunner({
             {isCorrect ? (
               <Alert>
                 <AlertTitle>Correct!</AlertTitle>
-                <AlertDescription className="flex flex-row">
+                <AlertDescription className="flex flex-row items-center">
                   {current.type !== 'fill-in-blank' ? <Volume2 className="h-4 w-4 mr-1 cursor-pointer" onClick={() => onPlay(current.explanation)}/> : ''}
                   {current.explanation ?? "Nice work."}
                 </AlertDescription>
@@ -274,14 +274,16 @@ function QuestionPromptFill({ prompt, onPlay }: { prompt: string, onPlay: (conte
 
   return (
     <div className="text-lg leading-relaxed flex flex-row items-center">
-      <Volume2 className="h-4 w-4 mr-3 cursor-pointer" onClick={() => onPlay(speakablePrompt)}/>
-      {parts.map((p, i) =>
-        /_{3,}/.test(p) ? (
-          <span key={i} className="inline-block min-w-24 border-b border-dashed align-baseline">&nbsp;</span>
-        ) : (
-          <span key={i}>{p}</span>
-        )
-      )}
+      <Volume2 className="h-5 w-5 mr-3 cursor-pointer" onClick={() => onPlay(speakablePrompt)}/>
+      <div>
+        {parts.map((p, i) =>
+          /_{3,}/.test(p) ? (
+            <span key={i} className="inline-block min-w-24 border-b border-dashed align-baseline">&nbsp;</span>
+          ) : (
+            <span key={i}>{p}</span>
+          )
+        )}
+      </div>
     </div>
   );
 }

@@ -13,7 +13,6 @@ export async function POST(req: NextRequest) {
     let newEntry:Entry;
     try {
         const { language, entry } = body;
-
         const systemPrompt = getEntryPrompt(language);
         const resp = await openai.chat.completions.create({
             model: defaultModel,
@@ -35,7 +34,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ ok: false, data: null, message: (err as Error).message });
         }
         if(!json?.isValid) {
-            throw "Entry not valid or return JSON is empty";
+            return NextResponse.json({ ok: false, data: null, message: "Entry not valid or return JSON is empty" });
         }
 
         // Handle Entry, senses and examples create

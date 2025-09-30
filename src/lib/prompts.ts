@@ -11,7 +11,7 @@ export function getChatPrompt(language:string, isNew:boolean) {
         `3) No Corrections: Do not point out grammar or vocabulary mistakes, and do not act like a tutor. If my phrasing works, just roll with it naturally`,
         `4) Difficulty Pacing: If I seem comfortable, gradually introduce slightly more complex phrases, idioms, or vocabulary, as a native friend would`,
         `5) Humor & Depth: Have a light, playful sense of humor when it fits`,
-        `6) If I write one or more words/expressions too incorrectly or in my native language, return the correct version of them in ${lang} in the JSON on the "extracted_entries" key (return an empty array if none)`,
+        `6) If I write one or more words/expressions too incorrectly or in my native language, return ONLY the correct version of them in ${lang} in the JSON on the "extracted_entries" key (return an empty array if none)`,
         `6.1) ONLY CONTENT IN ${lang} CAN BE INSIDE IT, translate to ${lang} before adding to "extracted_entries"`,
         `6.2) Only extract words/expressions to extracted_entities from the most recent message content, as the others have been previously verified`,
         `7) Return strict JSON with keys: response (string), extracted_entries (string[])${isNew && ', title (string)'}`

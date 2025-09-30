@@ -13,8 +13,8 @@ export function NewEntry({onRefresh, newInput, lang}:{onRefresh:()=>void, newInp
   const [isLoading, setIsLoading] = useState(false);
 
   const refresh = () => {
-    setInput('');
-    setLanguage(languages[0].value);
+    // setInput('');
+    // setLanguage(languages[0].value);
     setOpen(false);
   }
 
@@ -22,7 +22,7 @@ export function NewEntry({onRefresh, newInput, lang}:{onRefresh:()=>void, newInp
     setIsLoading(true);
     const req = await fetch('/api/new-entry', {
       method: "POST",
-      body: JSON.stringify({language: language, entry: input}),
+      body: JSON.stringify({language: language, entry: newInput}),
       headers: {
         "Content-Type": "application/json"
       },
@@ -31,11 +31,18 @@ export function NewEntry({onRefresh, newInput, lang}:{onRefresh:()=>void, newInp
     setIsLoading(false);
     const res = await req.json();
     if(!res.ok) {
-      alert(res.message);
+      alert(JSON.stringify(req));
+      alert(JSON.stringify(res));
     }
     refresh();
     onRefresh();
   }
+
+  useEffect(() => {
+    if(!open) {
+      setInput('');
+    }
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -52,7 +59,7 @@ export function NewEntry({onRefresh, newInput, lang}:{onRefresh:()=>void, newInp
         <div className="grid gap-4 my-3">
           <div className="grid gap-3">
             <Label htmlFor="entry">Entry</Label>
-            <Input id="entry" name="entry" placeholder="..." value={input} onChange={(e) => setInput(e.target.value)} disabled={isLoading}/>
+            <Input id="entry" name="entry" placeholder="..." value={newInput} onChange={(e) => setInput(e.target.value)} disabled={isLoading}/>
           </div>
           <div className="grid gap-3">
             <Label htmlFor="language">Language</Label>
