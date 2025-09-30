@@ -27,7 +27,6 @@ export function EntryCard({ entry }: { entry: Entry }) {
   const [senses, setSenses] = useState<{ id: string, entry_id: string, value: string }[]>([]);
   const [examples, setExamples] = useState<{ id: string, entry_id: string, value: string, translation: string }[]>([]);
   const [loading, setLoading] = useState(false);
-  const [fetched, setFetched] = useState(false);
   const [voices, setVoices] = useState<TTSVoice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<string | null>(null);
   useEffect(() => {

@@ -10,6 +10,9 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { PracticeSession, SessionExercise } from "@/lib/types";
+import { Volume2 } from "lucide-react";
+import { speak, stop, getVoicesByLang, TTSVoice } from "@/lib/tts";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 
 export type LessonRunnerProps = {
   title?: string;
@@ -45,6 +48,15 @@ export function LessonRunner({
   const [selected, setSelected] = React.useState<string | null>(null);
   const [lockedIn, setLockedIn] = React.useState(false);
   const [score, setScore] = React.useState(0);
+  const [voices, setVoices] = React.useState<TTSVoice[]>([]);
+  const [selectedVoice, setSelectedVoice] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    getVoicesByLang(session.language).then((list) => {
+      setVoices(list);
+      if (list.length) setSelectedVoice(list[0].voiceURI);
+    });
+  }, []);
 
   const prepared = React.useMemo(() => {
     return questions?.map((q) => {
@@ -87,6 +99,12 @@ export function LessonRunner({
       session.completed = true;
       onFinish?.({ session, questions });
       setIndex((i) => i + 1);
+    }
+  }
+
+  const onPlay = (content: string) => {
+    if (selectedVoice) {
+      speak(content, selectedVoice);
     }
   }
 
@@ -144,6 +162,22 @@ export function LessonRunner({
           <Badge variant="outline">
             Q{index + 1}/{questions.length}
           </Badge>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">Voices</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+              <DropdownMenuLabel>Voices</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuRadioGroup value={selectedVoice || undefined} onValueChange={setSelectedVoice}>
+                {voices.map((voice) => {
+                  return (
+                    <DropdownMenuRadioItem key={voice.voiceURI} value={voice.voiceURI}>{voice.name}</DropdownMenuRadioItem>
+                  )
+                })}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <div className="mt-4">
           <Progress value={progress} />
@@ -152,9 +186,9 @@ export function LessonRunner({
 
       <CardContent className="space-y-4">
         {current.type === "fill-in-blank" ? (
-          <QuestionPromptFill prompt={current.prompt} />
+          <QuestionPromptFill prompt={current.prompt} onPlay={onPlay} />
         ) : (
-          <QuestionPromptWord word={current.prompt} />
+          <QuestionPromptWord word={current.prompt} onPlay={onPlay} />
         )}
 
         <Separator />
@@ -171,7 +205,7 @@ export function LessonRunner({
                 variant={showCorrect ? "default" : showIncorrect ? "destructive" : active ? "secondary" : "outline"}
                 className="justify-start h-auto py-3"
                 disabled={lockedIn}
-                onClick={() => setSelected(choice.label)}
+                onClick={() => {setSelected(choice.label); if(current.type === 'fill-in-blank'){onPlay(choice.label);}}}
               >
                 <span className="mr-2 inline-flex items-center">
                   {showCorrect ? <CheckCircle2 className="size-4" /> : showIncorrect ? <XCircle className="size-4" /> : null}
@@ -187,7 +221,8 @@ export function LessonRunner({
             {isCorrect ? (
               <Alert>
                 <AlertTitle>Correct!</AlertTitle>
-                <AlertDescription>
+                <AlertDescription className="flex flex-row">
+                  {current.type !== 'fill-in-blank' ? <Volume2 className="h-4 w-4 mr-1 cursor-pointer" onClick={() => onPlay(current.explanation)}/> : ''}
                   {current.explanation ?? "Nice work."}
                 </AlertDescription>
               </Alert>
@@ -220,24 +255,26 @@ export function LessonRunner({
   );
 }
 
-function QuestionPromptFill({ prompt }: { prompt: string }) {
+function QuestionPromptFill({ prompt, onPlay }: { prompt: string, onPlay: (content:string)=>void }) {
   // Optional: visually mark the blank with an underscore if user uses something like "___"
   const parts = React.useMemo(() => {
     // split on runs of underscores
     const m = prompt.split(/(_{3,})/g);
     return m.length > 1 ? m : [prompt];
   }, [prompt]);
+  const speakablePrompt = prompt.replaceAll('_', ' ');
 
   if (parts.length === 1) {
     return (
-      <div className="text-lg">
-        {prompt}
+      <div className="text-lg flex flex-row items-center">
+        <Volume2 className="h-4 w-4 mr-3 cursor-pointer" onClick={() => onPlay(speakablePrompt)}/>{prompt}
       </div>
     );
   }
 
   return (
-    <div className="text-lg leading-relaxed">
+    <div className="text-lg leading-relaxed flex flex-row items-center">
+      <Volume2 className="h-4 w-4 mr-3 cursor-pointer" onClick={() => onPlay(speakablePrompt)}/>
       {parts.map((p, i) =>
         /_{3,}/.test(p) ? (
           <span key={i} className="inline-block min-w-24 border-b border-dashed align-baseline">&nbsp;</span>
@@ -249,10 +286,10 @@ function QuestionPromptFill({ prompt }: { prompt: string }) {
   );
 }
 
-function QuestionPromptWord({ word, example }: { word: string; example?: string }) {
+function QuestionPromptWord({ word, example, onPlay }: { word: string; example?: string, onPlay: (content:string)=>void }) {
   return (
     <div className="space-y-1">
-      <div className="text-xl font-semibold">{word}</div>
+      <div className="text-xl font-semibold flex flex-row items-center"><Volume2 className="h-4 w-4 mr-3 cursor-pointer" onClick={() => onPlay(word)}/>{word}</div>
       {example ? <div className="text-muted-foreground text-sm">“{example}”</div> : null}
     </div>
   );

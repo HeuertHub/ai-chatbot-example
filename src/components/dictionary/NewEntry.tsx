@@ -39,7 +39,7 @@ export function NewEntry({onRefresh, newInput, lang}:{onRefresh:()=>void, newInp
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger>
         <Button size="sm">Add Entry</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
